@@ -91,6 +91,7 @@ public:
              << base_salary << " "
              << tax_percentage << " ";
     }
+    string get_level() { return level; }
 
 private:
     string level;
@@ -111,17 +112,26 @@ public:
         age = stoi(input[2]);
     }
 
+    void set_level(Salary_Configs * init_level)
+    {
+        level = init_level;
+    }
+
+    void show()
+    {
+        cout << id << " "
+             << name << " "
+             << age << " "
+             << level->get_level() << " ";
+    }
+
 private:
     int id;
     string name;
     int age;
     vector<Day *> days;
     Salary_Configs *level;
-    vector<Salary_Configs> *salarys_configs;
-
-    void find_level_salary_configs()
-    {
-    }
+    // vector<Salary_Configs> *salarys_configs;
 };
 
 class Team
@@ -140,12 +150,21 @@ class Data_Base
 public:
     void transfer_to_salarys(vector<vector<string>> salarys_info)
     {
-        cout << salary_configs.size();
+        // cout << salary_configs.size();
         for (auto salary_info : salarys_info)
         {
             Salary_Configs temp_salary_configs;
             temp_salary_configs.set_fields(salary_info);
             salary_configs.push_back(temp_salary_configs);
+        }
+    }
+
+    void find_salary_configs_by_level(Employee & employee, string employees_info)
+    {
+        for (int i = 0 ; i < salary_configs.size() ; i++)
+        {
+            if (employees_info == salary_configs[i].get_level())
+                employee.set_level(&salary_configs[i]);
         }
     }
 
@@ -155,13 +174,23 @@ public:
         {
             Employee temp_employee;
             temp_employee.set_fields(employee_info);
+            find_salary_configs_by_level(temp_employee, employee_info[3]);
+            employees.push_back(temp_employee);
         }
     }
 
-    void show()
+    void show_salary()
     {
-        cout << salary_configs.size();
         for (auto aboos : salary_configs)
+        {
+            aboos.show();
+            cout << endl;
+        }
+    }
+
+    void show_employee()
+    {
+        for (auto aboos : employees)
         {
             aboos.show();
             cout << endl;
@@ -227,7 +256,9 @@ int read_command_convert_to_int(string input)
 int main()
 {
     Data_Base base;
-    base.show();
+    get_inputs_from_csv(base);
+    base.show_employee();
+    base.show_salary();
     // cout << endl
     //      << "////////////" << endl;
 }
