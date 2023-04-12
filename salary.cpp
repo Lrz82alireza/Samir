@@ -9,6 +9,7 @@
 using namespace std;
 
 const string file_salary_csv = "salary_configs.csv";
+const string file_employee = "employees.csv";
 
 enum commands
 {
@@ -120,7 +121,6 @@ private:
 
     void find_level_salary_configs()
     {
-        
     }
 };
 
@@ -146,6 +146,15 @@ public:
             Salary_Configs temp_salary_configs;
             temp_salary_configs.set_fields(salary_info);
             salary_configs.push_back(temp_salary_configs);
+        }
+    }
+
+    void transfer_to_employees(vector<vector<string>> employees_info)
+    {
+        for (auto employee_info : employees_info)
+        {
+            Employee temp_employee;
+            temp_employee.set_fields(employee_info);
         }
     }
 
@@ -187,6 +196,7 @@ vector<vector<string>> get_info_from_csv(string file_name)
 void get_inputs_from_csv(Data_Base &Base)
 {
     Base.transfer_to_salarys(get_info_from_csv(file_salary_csv));
+    Base.transfer_to_salarys(get_info_from_csv(file_employee));
 }
 
 int read_command_convert_to_int(string input)
