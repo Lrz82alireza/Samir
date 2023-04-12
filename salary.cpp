@@ -105,12 +105,12 @@ private:
 class Employee
 {
 public:
-    void set_fields(vector<string> input, Salary_Configs *salary_configs)
+    void set_fields(vector<string> input, Salary_Configs *salary_address)
     {
         id = stoi(input[0]);
         name = input[1];
         age = stoi(input[2]);
-        level = salary_configs;
+        level = salary_address;
     }
 
     void show()
@@ -127,6 +127,7 @@ private:
     int age;
     vector<Day *> days;
     Salary_Configs *level;
+    // vector<Salary_Configs> *salarys_configs;
 };
 
 class Team
@@ -145,6 +146,7 @@ class Data_Base
 public:
     void transfer_to_salarys(vector<vector<string>> salarys_info)
     {
+        // cout << salary_configs.size();
         for (auto salary_info : salarys_info)
         {
             Salary_Configs temp_salary_configs;
@@ -153,22 +155,40 @@ public:
         }
     }
 
+    Salary_Configs *find_salary_configs_by_level(string employees_info)
+    {
+        for (int i = 0 ; i < salary_configs.size() ; i++)
+        {
+            if (employees_info == salary_configs[i].get_level())
+                return &salary_configs[i];
+        }
+        return NULL;
+    }
+
     void transfer_to_employees(vector<vector<string>> employees_info)
     {
         for (auto employee_info : employees_info)
         {
             Employee temp_employee;
-            temp_employee.set_fields(employee_info, find_salary_configs_address_by_name(employee_info[3]));
+            temp_employee.set_fields(employee_info, find_salary_configs_by_level(employee_info[3]));
             employees.push_back(temp_employee);
         }
     }
 
-    void show()
+    void show_salary()
     {
-        cout << employees.size() << endl;
-        for (auto i : employees)
+        for (auto salary : salary_configs)
         {
-            i.show();
+            salary.show();
+            cout << endl;
+        }
+    }
+
+    void show_employee()
+    {
+        for (auto employee : employees)
+        {
+            employee.show();
             cout << endl;
         }
     }
@@ -177,16 +197,6 @@ private:
     vector<Employee> employees;
     vector<Team> teams;
     vector<Salary_Configs> salary_configs;
-    
-    Salary_Configs *find_salary_configs_address_by_name(string name)
-    {
-        for (int i = 0; i < salary_configs.size(); i++)
-        {
-            if (name == salary_configs[i].get_level())
-                return &(salary_configs[i]);
-        }
-        abort();
-    }
 };
 
 vector<vector<string>> get_info_from_csv(string file_name)
@@ -243,7 +253,8 @@ int main()
 {
     Data_Base base;
     get_inputs_from_csv(base);
-    base.show();
+    base.show_employee();
+    base.show_salary();
     // cout << endl
     //      << "////////////" << endl;
 }
