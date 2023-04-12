@@ -132,6 +132,7 @@ class Data_Base
 public:
     void transfer_to_salarys(vector<vector<string>> salarys_info)
     {
+        cout << salary_configs.size();
         for (auto salary_info : salarys_info)
         {
             Salary_Configs temp_salary_configs;
@@ -140,17 +141,9 @@ public:
         }
     }
 
-    void transfer_to_employees(vector<vector<string>> employees_info)
-    {
-        for (auto employee_info : employees_info)
-        {
-            Employee temp_employee;
-            temp_employee.set_fields(employee_info);
-        }
-    }
-
     void show()
     {
+        cout << salary_configs.size();
         for (auto aboos : salary_configs)
         {
             aboos.show();
@@ -164,10 +157,10 @@ private:
     vector<Salary_Configs> salary_configs;
 };
 
-void get_salary_configs_csv_info(Data_Base Base)
+vector<vector<string>> get_info_from_csv(string file_name)
 {
     vector<vector<string>> data;
-    ifstream file(file_salary_csv);
+    ifstream file(file_name);
     string line;
     int size = 1;
     getline(file, line);
@@ -180,18 +173,13 @@ void get_salary_configs_csv_info(Data_Base Base)
         size++;
     }
     file.close();
-    for (auto x : data)
-    {
-        for (auto y : x)
-            cout << y << ' ';
-        cout << endl;
-    }
-    Base.transfer_to_salarys(data);
+    return data;
 }
 
-void get_info_from_csv(Data_Base Base)
+void get_inputs_from_csv(Data_Base &Base)
 {
-    get_salary_configs_csv_info(Base);
+    Base.transfer_to_salarys(get_info_from_csv(file_salary_csv));
+
 }
 
 int read_command_convert_to_int(string input)
@@ -222,8 +210,7 @@ int read_command_convert_to_int(string input)
 int main()
 {
     Data_Base base;
-    get_info_from_csv(base);
     base.show();
-    cout << endl
-         << "////////////" << endl;
+    // cout << endl
+    //      << "////////////" << endl;
 }
