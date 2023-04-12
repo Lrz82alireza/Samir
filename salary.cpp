@@ -8,6 +8,20 @@
 
 using namespace std;
 
+vector<string> seperate_words(const string line, string separate_char)
+{
+    vector<string> words;
+    string temp = line;
+    size_t pos = 0;
+    while ((pos = temp.find(separate_char)) != string::npos)
+    {
+        words.push_back(temp.substr(0, pos));
+        temp.erase(0, pos + separate_char.length());
+    }
+    words.push_back(temp);
+    return words;
+}
+
 class Day
 {
 public:
@@ -15,16 +29,30 @@ public:
     {
         day = init_day;
     }
-    void set_interval_working(int start_time, int end_time) //*********
+    pair<int, int> read_interval_working_from_csv(string init_times)
     {
-        string start = to_string(start_time);
-        string end = to_string(end_time);
-        interval_working = start + '-' + end;
+        vector<string> times_s = seperate_words(init_times, "-");
+        pair<int, int> times_i = {stoi(times_s[0]), stoi(times_s[1])};
+    }
+    void set_interval_working(pair<int, int> init_times)
+    {
+        working_interval = init_times;
     }
 
 private:
     int day;
-    string interval_working;
+    pair<int, int> working_interval = {0, 0};
+
+    bool check_interval_working(pair<int, int> hour)
+    {
+        if (hour.first >= hour.second)
+            return false;
+        if (hour.first > 24 || hour.first < 0 ||
+            hour.second > 24 || hour.second < 0)
+            return false;
+        // hampooshani check shavad
+        return true;
+    }
 };
 
 class Salary_Configs
