@@ -105,12 +105,12 @@ private:
 class Employee
 {
 public:
-    void set_fields(vector<string> input)
+    void set_fields(vector<string> input, Salary_Configs *salary_configs)
     {
         id = stoi(input[0]);
         name = input[1];
         age = stoi(input[2]);
-        level = find_salary_configs_by_level(input[3]);
+        level = salary_configs;
     }
 
     void show()
@@ -127,17 +127,6 @@ private:
     int age;
     vector<Day *> days;
     Salary_Configs *level;
-    vector<Salary_Configs> *salarys_configs;
-
-    Salary_Configs *find_salary_configs_by_level(string level_name)
-    {
-        for (int i = 0; i < (*salarys_configs).size(); i++)
-        {
-            if (level_name == (*salarys_configs)[i].get_level())
-                return &(*salarys_configs)[i];
-        }
-        abort();
-    }
 };
 
 class Team
@@ -156,7 +145,6 @@ class Data_Base
 public:
     void transfer_to_salarys(vector<vector<string>> salarys_info)
     {
-        cout << salary_configs.size();
         for (auto salary_info : salarys_info)
         {
             Salary_Configs temp_salary_configs;
@@ -170,16 +158,17 @@ public:
         for (auto employee_info : employees_info)
         {
             Employee temp_employee;
-            temp_employee.set_fields(employee_info);
+            temp_employee.set_fields(employee_info, find_salary_configs_address_by_name(employee_info[3]));
+            employees.push_back(temp_employee);
         }
     }
 
     void show()
     {
-        cout << salary_configs.size() << endl;
-        for (auto aboos : salary_configs)
+        cout << employees.size() << endl;
+        for (auto i : employees)
         {
-            aboos.show();
+            i.show();
             cout << endl;
         }
     }
@@ -188,6 +177,16 @@ private:
     vector<Employee> employees;
     vector<Team> teams;
     vector<Salary_Configs> salary_configs;
+    
+    Salary_Configs *find_salary_configs_address_by_name(string name)
+    {
+        for (int i = 0; i < salary_configs.size(); i++)
+        {
+            if (name == salary_configs[i].get_level())
+                return &(salary_configs[i]);
+        }
+        abort();
+    }
 };
 
 vector<vector<string>> get_info_from_csv(string file_name)
