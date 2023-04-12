@@ -8,7 +8,7 @@
 
 using namespace std;
 
-const string file_salary_csv = "salary_configs.csv";
+const string file_salary = "salary_configs.csv";
 const string file_employee = "employees.csv";
 
 enum commands
@@ -195,7 +195,7 @@ vector<vector<string>> get_info_from_csv(string file_name)
 
 void get_inputs_from_csv(Data_Base &Base)
 {
-    Base.transfer_to_salarys(get_info_from_csv(file_salary_csv));
+    Base.transfer_to_salarys(get_info_from_csv(file_salary));
     Base.transfer_to_salarys(get_info_from_csv(file_employee));
 }
 
