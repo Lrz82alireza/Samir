@@ -6,6 +6,9 @@
 #include <map>
 #include <algorithm>
 
+using namespace std;
+
+
 const string file_salary_csv = "salary_configs.csv";
 
 enum commands
@@ -22,7 +25,6 @@ enum commands
     UPDATE_TEAM_BONUS,
 };
 
-using namespace std;
 
 vector<string> seperate_words(const string line, string separate_char)
 {
@@ -38,33 +40,6 @@ vector<string> seperate_words(const string line, string separate_char)
     return words;
 }
 
-class Data_Base
-{
-public:
-    void transfer_to_salarys(vector<vector<string>> salarys_info)
-    {
-        for (auto salary_info : salarys_info)
-        {
-            Salary_Configs temp_salary_configs;
-            temp_salary_configs.set_fields(salary_info);
-            salary_configs.push_back(temp_salary_configs);
-        }
-    }
-
-    void transfer_to_employees(vector<vector<string>> employees_info)
-    {
-        for (auto employee_info : employees_info)
-        {
-            Employee temp_employee;
-            
-        }
-    }
-private:
-    vector<Employee> employees;
-    vector<Team> teams;
-    vector<Salary_Configs> salary_configs;
-};
-
 class Day
 {
 public:
@@ -76,6 +51,7 @@ public:
     {
         vector<string> times_s = seperate_words(init_times, "-");
         pair<int, int> times_i = {stoi(times_s[0]), stoi(times_s[1])};
+        return times_i;
     }
     void set_interval_working(pair<int, int> init_times)
     {
@@ -110,6 +86,12 @@ public:
         official_working_hours = stoi(input[4]);
         tax_percentage = stoi(input[5]);
     }
+    void show()
+    {
+        cout << level << " "
+        << base_salary << " "
+        << tax_percentage << " ";
+    }
 
 private:
     string level;
@@ -125,13 +107,15 @@ class Employee
 public:
     void set_fields(vector<string> input)
     {
-        
     }
+
 private:
     int id;
     string name;
     int age;
+    vector<Day *> days;
     Salary_Configs *level;
+    vector<Salary_Configs> *salarys_configs;
 };
 
 class Team
@@ -145,6 +129,42 @@ private:
     float bonus_working_hours_max_variance;
 };
 
+class Data_Base
+{
+public:
+    void transfer_to_salarys(vector<vector<string>> salarys_info)
+    {
+        for (auto salary_info : salarys_info)
+        {
+            Salary_Configs temp_salary_configs;
+            temp_salary_configs.set_fields(salary_info);
+            salary_configs.push_back(temp_salary_configs);
+        }
+    }
+
+    void transfer_to_employees(vector<vector<string>> employees_info)
+    {
+        for (auto employee_info : employees_info)
+        {
+            Employee temp_employee;
+            temp_employee.set_fields(employee_info);
+        }
+    }
+
+    void show()
+    {
+        for (auto aboos : salary_configs)
+        {
+            aboos.show();
+            cout << endl;
+        }
+    }
+private:
+    vector<Employee> employees;
+    vector<Team> teams;
+    vector<Salary_Configs> salary_configs;
+};
+
 void get_salary_configs_csv_info(Data_Base Base)
 {
     vector<vector<string>> data;
@@ -154,9 +174,9 @@ void get_salary_configs_csv_info(Data_Base Base)
     while (getline(file, line))
     {
         data.resize(size);
-        vector<string> row = seperate_words(line , ",");
+        vector<string> row = seperate_words(line, ",");
         for (auto x : row)
-            data[size-1].push_back(x);
+            data[size - 1].push_back(x);
         size++;
     }
     file.close();
@@ -190,8 +210,13 @@ int read_command_convert_to_int(string input)
         return DELETE_WORKING_HOURS;
     if (input == "update_team_bonus")
         return UPDATE_TEAM_BONUS;
+    return -1;
 }
 
 int main()
 {
+    Data_Base base;
+    get_info_from_csv(base);
+    base.show();
+    cout << endl << "////////////" << endl;
 }
