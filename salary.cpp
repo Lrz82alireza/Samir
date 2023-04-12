@@ -42,6 +42,12 @@ vector<string> seperate_words(const string line, string separate_char)
 class Day
 {
 public:
+    void set_fields(vector<string> input)
+    {
+
+    }
+
+
     void set_day(int init_day)
     {
         day = init_day;
@@ -56,7 +62,6 @@ public:
     {
         working_interval = init_times;
     }
-
 private:
     int day;
     pair<int, int> working_interval = {0, 0};
@@ -127,7 +132,6 @@ private:
     int age;
     vector<Day *> days;
     Salary_Configs *level;
-    // vector<Salary_Configs> *salarys_configs;
 };
 
 class Team
@@ -146,7 +150,6 @@ class Data_Base
 public:
     void transfer_to_salarys(vector<vector<string>> salarys_info)
     {
-        // cout << salary_configs.size();
         for (auto salary_info : salarys_info)
         {
             Salary_Configs temp_salary_configs;
