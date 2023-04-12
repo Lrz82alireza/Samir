@@ -118,9 +118,9 @@ private:
     Salary_Configs *level;
     vector<Salary_Configs> *salarys_configs;
 
-    void find_level_salary_configs()
+    void find_salary_configs_by_level()
     {
-        
+
     }
 };
 
