@@ -39,9 +39,9 @@ vector<string> seperate_words(const string line, string separate_char)
 class Data_Base
 {
 public:
-    void transfer_to_salarys(vector<vector<string>> salarys)
+    void transfer_to_salarys(vector<vector<string>> salarys_info)
     {
-        for (auto salary_info : salarys)
+        for (auto salary_info : salarys_info)
         {
             Salary_Configs temp_salary_configs;
             temp_salary_configs.set_fields(salary_info);
@@ -49,6 +49,14 @@ public:
         }
     }
 
+    void transfer_to_employees(vector<vector<string>> employees_info)
+    {
+        for (auto employee_info : employees_info)
+        {
+            Employee temp_employee;
+            
+        }
+    }
 private:
     vector<Employee> employees;
     vector<Team> teams;
@@ -112,6 +120,10 @@ private:
 class Employee
 {
 public:
+    void set_fields(vector<string> input)
+    {
+        
+    }
 private:
     int id;
     string name;
