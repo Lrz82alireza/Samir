@@ -164,7 +164,7 @@ private:
     vector<Salary_Configs> salary_configs;
 };
 
-void get_salary_configs_csv_info(Data_Base Base)
+void get_salary_configs_csv_info(Data_Base &Base)
 {
     vector<vector<string>> data;
     ifstream file(file_salary_csv);
@@ -180,16 +180,10 @@ void get_salary_configs_csv_info(Data_Base Base)
         size++;
     }
     file.close();
-    for (auto x : data)
-    {
-        for (auto y : x)
-            cout << y << ' ';
-        cout << endl;
-    }
     Base.transfer_to_salarys(data);
 }
 
-void get_info_from_csv(Data_Base Base)
+void get_info_from_csv(Data_Base &Base)
 {
     get_salary_configs_csv_info(Base);
 }
@@ -223,7 +217,7 @@ int main()
 {
     Data_Base base;
     get_info_from_csv(base);
-    base.show();
+
     cout << endl
          << "////////////" << endl;
 }
