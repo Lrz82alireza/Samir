@@ -8,7 +8,8 @@
 
 using namespace std;
 
-const string file_salary_csv = "salary_configs.csv";
+const string file_salary = "salary_configs.csv";
+const string file_employee = "employees.csv";
 
 enum commands
 {
@@ -90,6 +91,7 @@ public:
              << base_salary << " "
              << tax_percentage << " ";
     }
+    string get_level() { return level; }
 
 private:
     string level;
@@ -108,6 +110,15 @@ public:
         id = stoi(input[0]);
         name = input[1];
         age = stoi(input[2]);
+        level = find_salary_configs_by_level(input[3]);
+    }
+
+    void show()
+    {
+        cout << id << " "
+             << name << " "
+             << age << " "
+             << level->get_level() << " ";
     }
 
 private:
@@ -118,9 +129,14 @@ private:
     Salary_Configs *level;
     vector<Salary_Configs> *salarys_configs;
 
-    void find_salary_configs_by_level()
+    Salary_Configs *find_salary_configs_by_level(string level_name)
     {
-
+        for (int i = 0; i < (*salarys_configs).size(); i++)
+        {
+            if (level_name == (*salarys_configs)[i].get_level())
+                return &(*salarys_configs)[i];
+        }
+        abort();
     }
 };
 
@@ -140,6 +156,7 @@ class Data_Base
 public:
     void transfer_to_salarys(vector<vector<string>> salarys_info)
     {
+        cout << salary_configs.size();
         for (auto salary_info : salarys_info)
         {
             Salary_Configs temp_salary_configs;
@@ -159,6 +176,7 @@ public:
 
     void show()
     {
+        cout << salary_configs.size() << endl;
         for (auto aboos : salary_configs)
         {
             aboos.show();
@@ -172,10 +190,10 @@ private:
     vector<Salary_Configs> salary_configs;
 };
 
-void get_salary_configs_csv_info(Data_Base &Base)
+vector<vector<string>> get_info_from_csv(string file_name)
 {
     vector<vector<string>> data;
-    ifstream file(file_salary_csv);
+    ifstream file(file_name);
     string line;
     int size = 1;
     getline(file, line);
@@ -188,12 +206,13 @@ void get_salary_configs_csv_info(Data_Base &Base)
         size++;
     }
     file.close();
-    Base.transfer_to_salarys(data);
+    return data;
 }
 
-void get_info_from_csv(Data_Base &Base)
+void get_inputs_from_csv(Data_Base &Base)
 {
-    get_salary_configs_csv_info(Base);
+    Base.transfer_to_salarys(get_info_from_csv(file_salary));
+    Base.transfer_to_employees(get_info_from_csv(file_employee));
 }
 
 int read_command_convert_to_int(string input)
@@ -224,8 +243,8 @@ int read_command_convert_to_int(string input)
 int main()
 {
     Data_Base base;
-    get_info_from_csv(base);
-
-    cout << endl
-         << "////////////" << endl;
+    get_inputs_from_csv(base);
+    base.show();
+    // cout << endl
+    //      << "////////////" << endl;
 }
