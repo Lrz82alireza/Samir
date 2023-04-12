@@ -6,6 +6,8 @@
 #include <map>
 #include <algorithm>
 
+const string file_salary_csv = "salary_configs.csv";
+
 enum commands
 {
     REPORT_SALARIES,
@@ -100,6 +102,7 @@ public:
         official_working_hours = stoi(input[4]);
         tax_percentage = stoi(input[5]);
     }
+
 private:
     string level;
     int base_salary;
@@ -129,6 +132,29 @@ private:
     int bonus_min_working_hours;
     float bonus_working_hours_max_variance;
 };
+
+void get_salary_configs_csv_info(Data_Base Base)
+{
+    vector<vector<string>> data;
+    ifstream file(file_salary_csv);
+    string line;
+    int size = 1;
+    while (getline(file, line))
+    {
+        data.resize(size);
+        vector<string> row = seperate_words(line , ",");
+        for (auto x : row)
+            data[size-1].push_back(x);
+        size++;
+    }
+    file.close();
+    Base.transfer_to_salarys(data);
+}
+
+void get_info_from_csv(Data_Base Base)
+{
+    get_salary_configs_csv_info(Base);
+}
 
 int read_command_convert_to_int(string input)
 {
