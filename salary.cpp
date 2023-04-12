@@ -87,8 +87,8 @@ public:
     void show()
     {
         cout << level << " "
-        << base_salary << " "
-        << tax_percentage << " ";
+             << base_salary << " "
+             << tax_percentage << " ";
     }
 
 private:
@@ -157,6 +157,7 @@ public:
             cout << endl;
         }
     }
+
 private:
     vector<Employee> employees;
     vector<Team> teams;
@@ -169,6 +170,7 @@ void get_salary_configs_csv_info(Data_Base Base)
     ifstream file(file_salary_csv);
     string line;
     int size = 1;
+    getline(file, line);
     while (getline(file, line))
     {
         data.resize(size);
@@ -178,11 +180,18 @@ void get_salary_configs_csv_info(Data_Base Base)
         size++;
     }
     file.close();
+    for (auto x : data)
+    {
+        for (auto y : x)
+            cout << y << ' ';
+        cout << endl;
+    }
+    Base.transfer_to_salarys(data);
 }
 
-void get_info_from_csv()
+void get_info_from_csv(Data_Base Base)
 {
-    get_salary_configs_csv_info();
+    get_salary_configs_csv_info(Base);
 }
 
 int read_command_convert_to_int(string input)
@@ -215,5 +224,6 @@ int main()
     Data_Base base;
     get_info_from_csv(base);
     base.show();
-    cout << endl << "////////////" << endl;
+    cout << endl
+         << "////////////" << endl;
 }
