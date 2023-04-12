@@ -6,7 +6,6 @@
 #include <map>
 #include <algorithm>
 
-
 enum commands
 {
     REPORT_SALARIES,
@@ -20,7 +19,6 @@ enum commands
     DELETE_WORKING_HOURS,
     UPDATE_TEAM_BONUS,
 };
-
 
 using namespace std;
 
@@ -37,6 +35,25 @@ vector<string> seperate_words(const string line, string separate_char)
     words.push_back(temp);
     return words;
 }
+
+class Data_Base
+{
+public:
+    void transfer_to_salarys(vector<vector<string>> salarys)
+    {
+        for (auto salary_info : salarys)
+        {
+            Salary_Configs temp_salary_configs;
+            temp_salary_configs.set_fields(salary_info);
+            salary_configs.push_back(temp_salary_configs);
+        }
+    }
+
+private:
+    vector<Employee> employees;
+    vector<Team> teams;
+    vector<Salary_Configs> salary_configs;
+};
 
 class Day
 {
@@ -74,6 +91,15 @@ private:
 class Salary_Configs
 {
 public:
+    void set_fields(vector<string> input)
+    {
+        level = input[0];
+        base_salary = stoi(input[1]);
+        salary_per_hour = stoi(input[2]);
+        salary_per_extra_hour = stoi(input[3]);
+        official_working_hours = stoi(input[4]);
+        tax_percentage = stoi(input[5]);
+    }
 private:
     string level;
     int base_salary;
@@ -104,10 +130,6 @@ private:
     float bonus_working_hours_max_variance;
 };
 
-
-
-
-
 int read_command_convert_to_int(string input)
 {
     if (input == "report_salies")
@@ -129,10 +151,9 @@ int read_command_convert_to_int(string input)
     if (input == "delete_working_hours")
         return DELETE_WORKING_HOURS;
     if (input == "update_team_bonus")
-        UPDATE_TEAM_BONUS;
+        return UPDATE_TEAM_BONUS;
 }
 
 int main()
 {
-
 }
