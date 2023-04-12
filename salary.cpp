@@ -6,6 +6,8 @@
 #include <map>
 #include <algorithm>
 
+using namespace std;
+
 const string file_salary_csv = "salary_configs.csv";
 
 enum commands
@@ -22,8 +24,6 @@ enum commands
     UPDATE_TEAM_BONUS,
 };
 
-using namespace std;
-
 vector<string> seperate_words(const string line, string separate_char)
 {
     vector<string> words;
@@ -38,114 +38,7 @@ vector<string> seperate_words(const string line, string separate_char)
     return words;
 }
 
-class Data_Base
-{
-public:
-    void transfer_to_salarys(vector<vector<string>> salarys_info)
-    {
-        for (auto salary_info : salarys_info)
-        {
-            Salary_Configs temp_salary_configs;
-            temp_salary_configs.set_fields(salary_info);
-            salary_configs.push_back(temp_salary_configs);
-        }
-    }
-
-    void transfer_to_employees(vector<vector<string>> employees_info)
-    {
-        for (auto employee_info : employees_info)
-        {
-            Employee temp_employee;
-            
-        }
-    }
-private:
-    vector<Employee> employees;
-    vector<Team> teams;
-    vector<Salary_Configs> salary_configs;
-};
-
-class Day
-{
-public:
-    void set_day(int init_day)
-    {
-        day = init_day;
-    }
-    pair<int, int> read_interval_working_from_csv(string init_times)
-    {
-        vector<string> times_s = seperate_words(init_times, "-");
-        pair<int, int> times_i = {stoi(times_s[0]), stoi(times_s[1])};
-    }
-    void set_interval_working(pair<int, int> init_times)
-    {
-        working_interval = init_times;
-    }
-
-private:
-    int day;
-    pair<int, int> working_interval = {0, 0};
-
-    bool check_interval_working(pair<int, int> hour)
-    {
-        if (hour.first >= hour.second)
-            return false;
-        if (hour.first > 24 || hour.first < 0 ||
-            hour.second > 24 || hour.second < 0)
-            return false;
-        // hampooshani check shavad
-        return true;
-    }
-};
-
-class Salary_Configs
-{
-public:
-    void set_fields(vector<string> input)
-    {
-        level = input[0];
-        base_salary = stoi(input[1]);
-        salary_per_hour = stoi(input[2]);
-        salary_per_extra_hour = stoi(input[3]);
-        official_working_hours = stoi(input[4]);
-        tax_percentage = stoi(input[5]);
-    }
-
-private:
-    string level;
-    int base_salary;
-    int salary_per_hour;
-    int salary_per_extra_hour;
-    int official_working_hours;
-    int tax_percentage;
-};
-
-class Employee
-{
-public:
-    void set_fields(vector<string> input)
-    {
-        
-    }
-private:
-    int id;
-    string name;
-    int age;
-    Salary_Configs *level;
-};
-
-class Team
-{
-public:
-private:
-    int team_id;
-    int team_head_id;
-    string member_ids;
-    int bonus_min_working_hours;
-    float bonus_working_hours_max_variance;
-};
-
-void get_salary_configs_csv_info(Data_Base Base)
+void get_salary_configs_csv_info()
 {
     vector<vector<string>> data;
     ifstream file(file_salary_csv);
@@ -160,12 +53,11 @@ void get_salary_configs_csv_info(Data_Base Base)
         size++;
     }
     file.close();
-    Base.transfer_to_salarys(data);
 }
 
-void get_info_from_csv(Data_Base Base)
+void get_info_from_csv()
 {
-    get_salary_configs_csv_info(Base);
+    get_salary_configs_csv_info();
 }
 
 int read_command_convert_to_int(string input)
@@ -194,4 +86,5 @@ int read_command_convert_to_int(string input)
 
 int main()
 {
+    get_info_from_csv();
 }
