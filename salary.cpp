@@ -43,6 +43,12 @@ vector<string> seperate_words(const string line, string separate_char)
 class Day
 {
 public:
+    void set_fields(vector<string> input)
+    {
+
+    }
+
+
     void set_day(int init_day)
     {
         day = init_day;
@@ -57,7 +63,6 @@ public:
     {
         working_interval = init_times;
     }
-
 private:
     int day;
     pair<int, int> working_interval = {0, 0};
