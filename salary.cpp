@@ -10,6 +10,7 @@ using namespace std;
 
 const string file_salary = "salary_configs.csv";
 const string file_employee = "employees.csv";
+const string file_team = "teams.csv";
 
 enum commands
 {
@@ -73,7 +74,6 @@ private:
         if (hour.first > 24 || hour.first < 0 ||
             hour.second > 24 || hour.second < 0)
             return false;
-        // hampooshani check shavad
         return true;
     }
 };
@@ -110,12 +110,16 @@ private:
 class Employee
 {
 public:
-    void set_fields(vector<string> input, Salary_Configs *salary_address)
+    void set_fields(vector<string> input)
     {
         id = stoi(input[0]);
         name = input[1];
         age = stoi(input[2]);
-        level = salary_address;
+    }
+
+    void set_level(Salary_Configs * init_level)
+    {
+        level = init_level;
     }
 
     void show()
@@ -137,10 +141,20 @@ private:
 class Team
 {
 public:
+    void set_fields(vector<string> team_info)
+    {
+        team_id = stoi(team_info[0]);
+        team_head_id = stoi(team_info[1]);
+        vector <string> temp = seperate_words(team_info[2] , "$");
+        for (auto s : temp)
+            member_ids.push_back(stoi(s));
+        bonus_min_working_hours = stoi(team_info[3]);
+        bonus_working_hours_max_variance = stof(team_info[4]);
+    }
 private:
     int team_id;
     int team_head_id;
-    string member_ids;
+    vector <int> member_ids;
     int bonus_min_working_hours;
     float bonus_working_hours_max_variance;
 };
@@ -158,14 +172,23 @@ public:
         }
     }
 
-    Salary_Configs *find_salary_configs_by_level(string employees_info)
+    void transfer_to_teams(vector<vector<string>> teams_info)
+    {
+        for (auto team_info : teams_info)
+        {
+            Team team_temp;
+            team_temp.set_fields(team_info);
+            teams.push_back(team_temp);
+        }
+    }
+
+    void find_salary_configs_by_level(Employee & employee, string employees_info)
     {
         for (int i = 0 ; i < salary_configs.size() ; i++)
         {
             if (employees_info == salary_configs[i].get_level())
-                return &salary_configs[i];
+                employee.set_level(&salary_configs[i]);
         }
-        return NULL;
     }
 
     void transfer_to_employees(vector<vector<string>> employees_info)
@@ -173,7 +196,8 @@ public:
         for (auto employee_info : employees_info)
         {
             Employee temp_employee;
-            temp_employee.set_fields(employee_info, find_salary_configs_by_level(employee_info[3]));
+            temp_employee.set_fields(employee_info);
+            find_salary_configs_by_level(temp_employee, employee_info[3]);
             employees.push_back(temp_employee);
         }
     }
@@ -225,6 +249,7 @@ void get_inputs_from_csv(Data_Base &Base)
 {
     Base.transfer_to_salarys(get_info_from_csv(file_salary));
     Base.transfer_to_employees(get_info_from_csv(file_employee));
+    Base.transfer_to_teams(get_info_from_csv(file_team));
 }
 
 int read_command_convert_to_int(string input)
@@ -258,6 +283,4 @@ int main()
     get_inputs_from_csv(base);
     base.show_employee();
     base.show_salary();
-    // cout << endl
-    //      << "////////////" << endl;
 }
