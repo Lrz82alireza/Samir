@@ -162,6 +162,11 @@ private:
 class Data_Base
 {
 public:
+    void transfer_to_days(vector<vector<string>> days_info)
+    {
+        
+    }
+
     void transfer_to_salarys(vector<vector<string>> salarys_info)
     {
         for (auto salary_info : salarys_info)
