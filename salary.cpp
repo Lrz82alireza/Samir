@@ -105,6 +105,9 @@ class Employee
 public:
     void set_fields(vector<string> input)
     {
+        id = stoi(input[0]);
+        name = input[1];
+        age = stoi(input[2]);
     }
 
 private:
@@ -114,6 +117,11 @@ private:
     vector<Day *> days;
     Salary_Configs *level;
     vector<Salary_Configs> *salarys_configs;
+
+    void find_level_salary_configs()
+    {
+        
+    }
 };
 
 class Team
