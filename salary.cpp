@@ -181,18 +181,18 @@ public:
 
     void show_salary()
     {
-        for (auto aboos : salary_configs)
+        for (auto salary : salary_configs)
         {
-            aboos.show();
+            salary.show();
             cout << endl;
         }
     }
 
     void show_employee()
     {
-        for (auto aboos : employees)
+        for (auto employee : employees)
         {
-            aboos.show();
+            employee.show();
             cout << endl;
         }
     }
