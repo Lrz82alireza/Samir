@@ -196,7 +196,7 @@ vector<vector<string>> get_info_from_csv(string file_name)
 void get_inputs_from_csv(Data_Base &Base)
 {
     Base.transfer_to_salarys(get_info_from_csv(file_salary));
-    Base.transfer_to_salarys(get_info_from_csv(file_employee));
+    Base.transfer_to_employees(get_info_from_csv(file_employee));
 }
 
 int read_command_convert_to_int(string input)
