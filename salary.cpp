@@ -223,6 +223,8 @@ public:
             return (calculate_salary() * team->get_bonus_min_working_hours()) / PERSENT;
         return 0;
     }
+    
+    int caculate_total_earning() { return (calculate_salary() + calculate_bonus() - calculate_tax()); }
 
     int calculate_tax()
     {
