@@ -9,7 +9,7 @@
 using namespace std;
 
 const string file_salary = "salary_configs.csv";
-const string file_employee = "/employees.csv";
+const string file_employee = "assets/employees.csv";
 const string file_team = "assets/teams.csv";
 
 enum commands
@@ -123,7 +123,7 @@ public:
     void show()
     {
         cout << team_id << " "
-            << bonus_working_hours_max_variance << " ";
+             << bonus_working_hours_max_variance << " ";
     }
 
     int get_team_id() { return team_id; }
@@ -152,10 +152,10 @@ public:
     void show()
     {
         cout << id << " ";
-             if (team != NULL)
-                {
-                    cout << team->get_team_id() << " ";
-                }
+        if (team != NULL)
+        {
+            cout << team->get_team_id() << " ";
+        }
     }
 
     void set_team_pointer(Team *init_team) { team = init_team; }
@@ -191,14 +191,21 @@ public:
     void set_team_pointers_for_employees(Team &team)
     {
         vector<int> team_members = team.get_team_ids();
+        for (int j = 0; j < team_members.size(); j++)
+        {
+            Employee *target_employee = find_employee_by_id(team_members[j]);
+            target_employee->set_team_pointer(&team);
+        }
+    }
+
+    Employee *find_employee_by_id(int id)
+    {
         for (int i = 0; i < employees.size(); i++)
         {
-            for (int j = 0; j < team_members.size(); j++)
-            {
-                if (employees[i].get_id() == team_members[j])
-                    employees[i].set_team_pointer(&team);
-            }
+            if (employees[i].get_id() == id)
+                return &employees[i];
         }
+        return NULL;
     }
 
     void transfer_to_teams(vector<vector<string>> teams_info)
