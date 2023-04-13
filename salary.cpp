@@ -5,6 +5,7 @@
 #include <cstring>
 #include <map>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -17,7 +18,7 @@ const string FILE_WORKING_HOURS = "working_hours.csv";
 const string SEPRATE_MEMBERS_CHAR = "$";
 const string SPREAT_CSV_CHAR = ",";
 const string SEPREAT_TIME_CHAR = "-";
-const int PERSENT = 100;
+const float PERSENT = 100.00;
 
 enum commands
 {
@@ -66,7 +67,7 @@ public:
         {
             cout << day << " / "
                  << i.first << SEPREAT_TIME_CHAR
-                 << i.second << endl;  
+                 << i.second << endl;
         }
     }
 
@@ -111,7 +112,8 @@ public:
     int get_salary_per_extra_hour() { return salary_per_hour; }
     int get_official_working_hours() { return official_working_hours; }
     int get_salary_per_hour() { return salary_per_hour; }
-    int get_tax_percentage() {return tax_percentage;}
+    int get_tax_percentage() { return tax_percentage; }
+    int get_base_salary() { return base_salary; }
 
 private:
     string level;
@@ -198,6 +200,7 @@ public:
                 total_hours += (pair.second - pair.first);
             }
         }
+        return total_hours;
     }
 
     int calculate_absent_days() { return (DAYS_OF_MOUNTH - days.size()); }
@@ -205,31 +208,29 @@ public:
     int calculate_salary()
     {
         int total_hour = calculate_total_hours();
+        int base_salary = level->get_base_salary();
 
         if (total_hour <= level->get_official_working_hours())
-            return (total_hour * level->get_salary_per_hour());
-        else if (total_hour > level->get_official_working_hours())
-        {
-            int official_hours = level->get_official_working_hours();
-            int basic_salary = official_hours * level->get_salary_per_hour();
-            int extra_salary = (total_hour - official_hours) * level->get_salary_per_extra_hour();
-            return (basic_salary + extra_salary);
-        }
+            return base_salary + (total_hour * level->get_salary_per_hour());
+        int official_hours = level->get_official_working_hours();
+        int basic_salary = official_hours * level->get_salary_per_hour();
+        int extra_salary = (total_hour - official_hours) * level->get_salary_per_extra_hour();
+        return (basic_salary + extra_salary + base_salary);
     }
 
     int calculate_bonus()
     {
         if (team != NULL)
-            return (calculate_salary() * team->get_bonus_min_working_hours()) / PERSENT;
+            return round((calculate_salary() * team->get_bonus_min_working_hours()) / PERSENT);
         return 0;
     }
-    
+
     int caculate_total_earning() { return (calculate_salary() + calculate_bonus() - calculate_tax()); }
 
     int calculate_tax()
     {
         int earning = calculate_salary() + calculate_bonus();
-        return (earning * level->get_tax_percentage()) / PERSENT;
+        return round((earning * level->get_tax_percentage()) / PERSENT);
     }
 
     void set_team_pointer(Team *init_team) { team = init_team; }
@@ -281,13 +282,14 @@ public:
     map<string, string> report_employee_salary(int id)
     {
         map<string, string> report;
-        for (auto employee : employees)
+        Employee *target_employee = find_employee_by_id(id);
+        if (target_employee == NULL)
         {
-            if (employee.get_id() == id)
-            {
-                employee.fill_employee_info_map(report);
-            }
+            report["Error"] = "found";
+            return report;
         }
+
+        target_employee->fill_employee_info_map(report);
         return report;
     }
 
@@ -416,6 +418,28 @@ void Data_Base::transfer_to_salarys(vector<vector<string>> salarys_info)
 }
 //**********************************************************************
 
+void print_report_of_employee_salary(Data_Base &base, int id)
+{
+    map<string, string> report = base.report_employee_salary(id);
+    if (report["Error"] == "found")
+    {
+        cout << "EMPLOYEE_NOT_FOUND" << endl;
+        return;
+    }
+
+    cout << "ID: " + report["ID"] << endl
+        << "Name: " + report["Name"] << endl
+        << "Age: " + report["Age"] << endl
+        << "Level: " + report["Level"] << endl
+        << "Team ID: " + report["Team ID"] << endl
+        << "Total Working Hours: " + report["Total Working Hours"] << endl
+        << "Absent Days: " + report["Absent Days"] << endl
+        << "Salary: " + report["Salary"] << endl
+        << "Bonus: " + report["Bonus"] << endl
+        << "Tax: " + report["Tax"] << endl
+        << "Total Earning: " + report["Total Earning"] << endl;
+}
+
 vector<vector<string>> get_info_from_csv(string file_name)
 {
     vector<vector<string>> data;
@@ -473,5 +497,5 @@ int main(int argc, char *argv[])
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    base.show_employee();
+    print_report_of_employee_salary(base, 1);
 }
