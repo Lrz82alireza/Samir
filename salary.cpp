@@ -48,7 +48,6 @@ public:
 
     }
 
-
     void set_day(int init_day)
     {
         day = init_day;
