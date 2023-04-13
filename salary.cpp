@@ -101,6 +101,7 @@ public:
         official_working_hours = stoi(input[4]);
         tax_percentage = stoi(input[5]);
     }
+    
     void show()
     {
         cout << level << " "
@@ -159,26 +160,23 @@ private:
 class Employee
 {
 public:
-    void set_fields(vector<string> input, Salary_Configs *salary_address)
-    {
-        id = stoi(input[0]);
-        name = input[1];
-        age = stoi(input[2]);
-        level = salary_address;
-    }
 
-    void make_new_day(vector<string> day_info)
-    {
-        Day *target_day = find_day_by_number(stoi(day_info[1]));
-        if (target_day == NULL)
-        {
-            Day new_day;
-            new_day.set_fields(day_info);
-            days.push_back(new_day);
-            return;
-        }
-        target_day->set_fields(day_info);
-    }
+    void set_fields(vector<string> input, Salary_Configs *salary_address);
+    void set_team_pointer(Team *init_team) { team = init_team; }
+    void set_new_day(vector<string> day_info);
+
+    int calculate_absent_days() { return (DAYS_OF_MOUNTH - days.size()); }
+    int caculate_total_earning() { return (calculate_salary() + calculate_bonus() - calculate_tax()); }
+    int calculate_total_hours();
+    int calculate_salary();
+    int calculate_bonus();
+    int calculate_tax();
+
+    void fill_employee_info_map(map<string, string> &report);
+
+    int get_id() { return id; }
+    string get_name() { return name; }
+    int get_age() { return age; }
 
     void show()
     {
@@ -189,73 +187,6 @@ public:
             cout << endl;
         }
     }
-
-    int calculate_total_hours()
-    {
-        int total_hours = 0;
-        for (auto day : days)
-        {
-            for (auto pair : day.get_working_interval())
-            {
-                total_hours += (pair.second - pair.first);
-            }
-        }
-        return total_hours;
-    }
-
-    int calculate_absent_days() { return (DAYS_OF_MOUNTH - days.size()); }
-
-    int calculate_salary()
-    {
-        int total_hour = calculate_total_hours();
-        int base_salary = level->get_base_salary();
-
-        if (total_hour <= level->get_official_working_hours())
-            return base_salary + (total_hour * level->get_salary_per_hour());
-        int official_hours = level->get_official_working_hours();
-        int basic_salary = official_hours * level->get_salary_per_hour();
-        int extra_salary = (total_hour - official_hours) * level->get_salary_per_extra_hour();
-        return (basic_salary + extra_salary + base_salary);
-    }
-
-    int calculate_bonus()
-    {
-        if (team != NULL)
-            return round((calculate_salary() * team->get_bonus_min_working_hours()) / PERSENT);
-        return 0;
-    }
-
-    int caculate_total_earning() { return (calculate_salary() + calculate_bonus() - calculate_tax()); }
-
-    int calculate_tax()
-    {
-        int earning = calculate_salary() + calculate_bonus();
-        return round((earning * level->get_tax_percentage()) / PERSENT);
-    }
-
-    void set_team_pointer(Team *init_team) { team = init_team; }
-
-    void fill_employee_info_map(map<string, string> &report)
-    {
-        report["ID"] = to_string(id);
-        report["Name"] = name;
-        report["Age"] = to_string(age);
-        report["Level"] = level->get_level();
-        if (team != NULL)
-            report["Team ID"] = to_string(team->get_team_id());
-        else
-            report["Team ID"] = "N/A";
-        report["Total Working Hours"] = to_string(calculate_total_hours());
-        report["Absent Days"] = to_string(calculate_absent_days());
-        report["Salary"] = to_string(calculate_salary());
-        report["Bonus"] = to_string(calculate_bonus());
-        report["Tax"] = to_string(calculate_tax());
-        report["Total Earning"] = to_string(caculate_total_earning());
-    }
-
-    int get_id() { return id; }
-    string get_name() { return name; }
-    int get_age() { return age; }
 
 private:
     int id;
@@ -276,56 +207,109 @@ private:
     }
 };
 
+//*********************** Employee methods ****************************
+int Employee::calculate_total_hours()
+{
+    int total_hours = 0;
+    for (auto day : days)
+    {
+        for (auto pair : day.get_working_interval())
+        {
+            total_hours += (pair.second - pair.first);
+        }
+    }
+    return total_hours;
+}
+int Employee::calculate_salary()
+{
+    int total_hour = calculate_total_hours();
+    int base_salary = level->get_base_salary();
+
+    if (total_hour <= level->get_official_working_hours())
+        return base_salary + (total_hour * level->get_salary_per_hour());
+    int official_hours = level->get_official_working_hours();
+    int basic_salary = official_hours * level->get_salary_per_hour();
+    int extra_salary = (total_hour - official_hours) * level->get_salary_per_extra_hour();
+    return (basic_salary + extra_salary + base_salary);
+}
+int Employee::calculate_bonus()
+{
+    if (team != NULL)
+        return round((calculate_salary() * team->get_bonus_min_working_hours()) / PERSENT);
+    return 0;
+}
+int Employee::calculate_tax()
+{
+    int earning = calculate_salary() + calculate_bonus();
+    return round((earning * level->get_tax_percentage()) / PERSENT);
+}
+
+void Employee::fill_employee_info_map(map<string, string> &report)
+{
+    report["ID"] = to_string(id);
+    report["Name"] = name;
+    report["Age"] = to_string(age);
+    report["Level"] = level->get_level();
+    if (team != NULL)
+        report["Team ID"] = to_string(team->get_team_id());
+    else
+        report["Team ID"] = "N/A";
+    report["Total Working Hours"] = to_string(calculate_total_hours());
+    report["Absent Days"] = to_string(calculate_absent_days());
+    report["Salary"] = to_string(calculate_salary());
+    report["Bonus"] = to_string(calculate_bonus());
+    report["Tax"] = to_string(calculate_tax());
+    report["Total Earning"] = to_string(caculate_total_earning());
+}
+
+void Employee::set_fields(vector<string> input, Salary_Configs *salary_address)
+{
+    id = stoi(input[0]);
+    name = input[1];
+    age = stoi(input[2]);
+    level = salary_address;
+}
+void Employee::set_new_day(vector<string> day_info)
+    {
+        Day *target_day = find_day_by_number(stoi(day_info[1]));
+        if (target_day == NULL)
+        {
+            Day new_day;
+            new_day.set_fields(day_info);
+            days.push_back(new_day);
+            return;
+        }
+        target_day->set_fields(day_info);
+    }
+//*********************************************************************
+
 class Data_Base
 {
 public:
-    map<string, string> report_employee_salary(int id)
-    {
-        map<string, string> report;
-        Employee *target_employee = find_employee_by_id(id);
-        if (target_employee == NULL)
-        {
-            report["Error"] = "found";
-            return report;
-        }
+    map<string, string> report_employee_salary(int id);
 
-        target_employee->fill_employee_info_map(report);
-        return report;
-    }
-
-    void transfer_to_days(vector<vector<string>> employees_days)
-    {
-        for (auto employee_days : employees_days)
-        {
-            Employee *target_employee = find_employee_by_id(stoi(employee_days[0]));
-            target_employee->make_new_day(employee_days);
-        }
-    }
-
-    vector<Employee> get_employees() { return employees; }
-
+    void transfer_to_days(vector<vector<string>> employees_days);
     void transfer_to_salarys(vector<vector<string>> salarys_info);
-    void set_team_pointers_for_employees(Team &team);
-    Employee *find_employee_by_id(int id);
-    void transfer_to_teams(vector<vector<string>> teams_info);
-    Salary_Configs *find_salary_configs_by_level(string employees_info);
     void transfer_to_employees(vector<vector<string>> employees_info);
+    void transfer_to_teams(vector<vector<string>> teams_info);
+
+    void set_team_pointers_for_employees(Team &team);
+
+    Employee *find_employee_by_id(int id);
+    Salary_Configs *find_salary_configs_by_level(string employees_info);
+
     void show_salary();
     void show_team();
     void show_employee();
+
+    vector<Employee> get_employees() { return employees; }
 
 private:
     vector<Employee> employees;
     vector<Team> teams;
     vector<Salary_Configs> salary_configs;
 
-    void set_teams_pointers_for_employees()
-    {
-        for (int i = 0; i < teams.size(); i++)
-        {
-            set_team_pointers_for_employees(teams[i]);
-        }
-    }
+    void set_teams_pointers_for_employees();
 };
 
 //*********************** Data_Base methods ****************************
@@ -337,7 +321,6 @@ void Data_Base::show_team()
         cout << endl;
     }
 }
-
 void Data_Base::show_employee()
 {
     for (auto employee : employees)
@@ -346,7 +329,6 @@ void Data_Base::show_employee()
         cout << endl;
     }
 }
-
 void Data_Base::show_salary()
 {
     for (auto salary : salary_configs)
@@ -356,6 +338,14 @@ void Data_Base::show_salary()
     }
 }
 
+void Data_Base::transfer_to_days(vector<vector<string>> employees_days)
+{
+    for (auto employee_days : employees_days)
+    {
+        Employee *target_employee = find_employee_by_id(stoi(employee_days[0]));
+        target_employee->set_new_day(employee_days);
+    }
+}
 void Data_Base::transfer_to_employees(vector<vector<string>> employees_info)
 {
     for (auto employee_info : employees_info)
@@ -363,6 +353,25 @@ void Data_Base::transfer_to_employees(vector<vector<string>> employees_info)
         Employee temp_employee;
         temp_employee.set_fields(employee_info, find_salary_configs_by_level(employee_info[3]));
         employees.push_back(temp_employee);
+    }
+}
+void Data_Base::transfer_to_teams(vector<vector<string>> teams_info)
+{
+    for (auto team_info : teams_info)
+    {
+        Team team_temp;
+        team_temp.set_fields(team_info);
+        teams.push_back(team_temp);
+    }
+    set_teams_pointers_for_employees();
+}
+void Data_Base::transfer_to_salarys(vector<vector<string>> salarys_info)
+{
+    for (auto salary_info : salarys_info)
+    {
+        Salary_Configs temp_salary_configs;
+        temp_salary_configs.set_fields(salary_info);
+        salary_configs.push_back(temp_salary_configs);
     }
 }
 
@@ -375,18 +384,6 @@ Salary_Configs *Data_Base::find_salary_configs_by_level(string employees_info)
     }
     return NULL;
 }
-
-void Data_Base::transfer_to_teams(vector<vector<string>> teams_info)
-{
-    for (auto team_info : teams_info)
-    {
-        Team team_temp;
-        team_temp.set_fields(team_info);
-        teams.push_back(team_temp);
-    }
-    set_teams_pointers_for_employees();
-}
-
 Employee *Data_Base::find_employee_by_id(int id)
 {
     for (int i = 0; i < employees.size(); i++)
@@ -406,15 +403,26 @@ void Data_Base::set_team_pointers_for_employees(Team &team)
         target_employee->set_team_pointer(&team);
     }
 }
-
-void Data_Base::transfer_to_salarys(vector<vector<string>> salarys_info)
+void Data_Base::set_teams_pointers_for_employees()
 {
-    for (auto salary_info : salarys_info)
+    for (int i = 0; i < teams.size(); i++)
     {
-        Salary_Configs temp_salary_configs;
-        temp_salary_configs.set_fields(salary_info);
-        salary_configs.push_back(temp_salary_configs);
+        set_team_pointers_for_employees(teams[i]);
     }
+}
+
+map<string, string> Data_Base::report_employee_salary(int id)
+{
+    map<string, string> report;
+    Employee *target_employee = find_employee_by_id(id);
+    if (target_employee == NULL)
+    {
+        report["Error"] = "found";
+        return report;
+    }
+
+    target_employee->fill_employee_info_map(report);
+    return report;
 }
 //**********************************************************************
 
@@ -428,16 +436,16 @@ void print_report_of_employee_salary(Data_Base &base, int id)
     }
 
     cout << "ID: " + report["ID"] << endl
-        << "Name: " + report["Name"] << endl
-        << "Age: " + report["Age"] << endl
-        << "Level: " + report["Level"] << endl
-        << "Team ID: " + report["Team ID"] << endl
-        << "Total Working Hours: " + report["Total Working Hours"] << endl
-        << "Absent Days: " + report["Absent Days"] << endl
-        << "Salary: " + report["Salary"] << endl
-        << "Bonus: " + report["Bonus"] << endl
-        << "Tax: " + report["Tax"] << endl
-        << "Total Earning: " + report["Total Earning"] << endl;
+         << "Name: " + report["Name"] << endl
+         << "Age: " + report["Age"] << endl
+         << "Level: " + report["Level"] << endl
+         << "Team ID: " + report["Team ID"] << endl
+         << "Total Working Hours: " + report["Total Working Hours"] << endl
+         << "Absent Days: " + report["Absent Days"] << endl
+         << "Salary: " + report["Salary"] << endl
+         << "Bonus: " + report["Bonus"] << endl
+         << "Tax: " + report["Tax"] << endl
+         << "Total Earning: " + report["Total Earning"] << endl;
 }
 
 vector<vector<string>> get_info_from_csv(string file_name)
