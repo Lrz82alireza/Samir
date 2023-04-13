@@ -8,11 +8,12 @@
 
 using namespace std;
 
-const int days_of_mounth = 30;
-const string file_salary = "salary_configs.csv";
-const string file_employee = "employees.csv";
-const string file_team = "teams.csv";
-const string file_working_hours = "working_hours.csv";
+const int DAYS_OF_MOUNTH = 30;
+const int DAY_LENGTH = 24;
+const string FILE_SALARY = "salary_configs.csv";
+const string FILE_EMPLOYEE = "employees.csv";
+const string FILE_TEAM = "teams.csv";
+const string FILE_WORKING_HOURS = "working_hours.csv";
 
 enum commands
 {
@@ -76,8 +77,8 @@ private:
     {
         if (hour.first >= hour.second)
             return false;
-        if (hour.first > 24 || hour.first < 0 ||
-            hour.second > 24 || hour.second < 0)
+        if (hour.first > DAY_LENGTH || hour.first < 0 ||
+            hour.second > DAY_LENGTH || hour.second < 0)
             return false;
         return true;
     }
@@ -190,15 +191,30 @@ public:
         }
     }
 
-    int calculate_absent_days() { return (days_of_mounth - days.size()); }
+    int calculate_absent_days() { return (DAYS_OF_MOUNTH - days.size()); }
     
-    //int calculate_salary() 
+    int calculate_salary()
+    {
+        
+    } 
+
+    int calculate_bonus()
+    {
+
+    }
+
+    int calculate_tax()
+    {
+
+    }
+
+    int caculate_total_earning() { return (calculate_salary() + calculate_bonus() - calculate_tax()); }
 
     void set_team_pointer(Team *init_team) { team = init_team; }
 
     void fill_employee_info_map(map<string, string>& report)
     {
-        report["ID"] = id;
+        report["ID"] = to_string(id);
         report["Name"] = name;
         report["Age"] = to_string(age);
         report["Level"] = level->get_level();
@@ -208,7 +224,10 @@ public:
             report["Team ID"] = "N/A";
         report["Total Working Hours"] = to_string(calculate_total_hours());
         report["Absent Days"] = to_string(calculate_absent_days());
-        //report["Salary"] = to_string()
+        report["Salary"] = to_string(calculate_salary());
+        report["Bonus"] = to_string(calculate_bonus());
+        report["Tax"] = to_string(calculate_tax());
+        report["Total Earning"] = to_string(caculate_total_earning());
     }
 
     int get_id() { return id; }
@@ -396,10 +415,10 @@ vector<vector<string>> get_info_from_csv(string file_name)
 
 void get_inputs_from_csv(Data_Base &Base, string address)
 {
-    Base.transfer_to_salarys(get_info_from_csv(address + file_salary));
-    Base.transfer_to_employees(get_info_from_csv(address + file_employee));
-    Base.transfer_to_teams(get_info_from_csv(address + file_team));
-    Base.transfer_to_days(get_info_from_csv(address + file_working_hours));
+    Base.transfer_to_salarys(get_info_from_csv(address + FILE_SALARY));
+    Base.transfer_to_employees(get_info_from_csv(address + FILE_EMPLOYEE));
+    Base.transfer_to_teams(get_info_from_csv(address + FILE_TEAM));
+    Base.transfer_to_days(get_info_from_csv(address + FILE_WORKING_HOURS));
 }
 
 int read_command_convert_to_int(string input)
