@@ -11,6 +11,7 @@ using namespace std;
 const string file_salary = "salary_configs.csv";
 const string file_employee = "employees.csv";
 const string file_team = "teams.csv";
+const string file_working_hours = "working_hours.csv";
 
 enum commands
 {
@@ -43,8 +44,12 @@ vector<string> seperate_words(const string line, string separate_char)
 class Day
 {
 public:
-    void set_fields(vector<string> input)
+    void set_fields(vector<string> day_info)
     {
+        day = stoi(day_info[1]);
+
+        vector<string> working_hours = seperate_words(day_info[2], "-");
+        working_interval = {stoi(working_hours[0]), stoi(working_hours[1])};
     }
 
     void set_day(int init_day)
@@ -149,6 +154,13 @@ public:
         level = salary_address;
     }
 
+    void make_new_day(vector<string> day_info)
+    {
+        Day new_day;
+        new_day.set_fields(day_info); 
+        days.push_back(new_day);
+    }
+
     void show()
     {
         cout << id << " ";
@@ -165,7 +177,7 @@ private:
     int id;
     string name;
     int age;
-    vector<Day *> days;
+    vector<Day> days;
     Salary_Configs *level;
     Team *team = NULL;
 };
@@ -173,8 +185,13 @@ private:
 class Data_Base
 {
 public:
-    void transfer_to_days(vector<vector<string>> days_info)
+    void transfer_to_days(vector<vector<string>> employees_days)
     {
+        for (auto employee_days : employees_days)
+        {
+            Employee *target_employee = find_employee_by_id(stoi(employee_days[0]));
+            target_employee->make_new_day(employee_days);
+        }
     }
 
     void transfer_to_salarys(vector<vector<string>> salarys_info);
@@ -312,10 +329,10 @@ vector<vector<string>> get_info_from_csv(string file_name)
 
 void get_inputs_from_csv(Data_Base &Base, string address)
 {
-
     Base.transfer_to_salarys(get_info_from_csv(address + file_salary));
     Base.transfer_to_employees(get_info_from_csv(address + file_employee));
     Base.transfer_to_teams(get_info_from_csv(address + file_team));
+    Base.transfer_to_days(get_info_from_csv(address + file_working_hours));
 }
 
 int read_command_convert_to_int(string input)
