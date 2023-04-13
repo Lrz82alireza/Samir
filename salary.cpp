@@ -6,6 +6,7 @@
 #include <map>
 #include <algorithm>
 
+
 using namespace std;
 
 const string file_salary = "salary_configs.csv";
@@ -120,6 +121,14 @@ public:
         bonus_working_hours_max_variance = stof(team_info[4]);
     }
 
+    void show()
+    {
+        cout << team_id << " "
+            << bonus_working_hours_max_variance << " ";
+    }
+
+    int get_team_id() { return team_id; }
+
     vector<int> get_team_ids() { return member_ids; }
 
 private:
@@ -143,10 +152,11 @@ public:
 
     void show()
     {
-        cout << id << " "
-             << name << " "
-             << age << " "
-             << level->get_level() << " ";
+        cout << id << " ";
+             if (team != NULL)
+                {
+                    cout << team->get_team_id() << " ";
+                }
     }
 
     void set_team_pointer(Team *init_team) { team = init_team; }
@@ -159,7 +169,7 @@ private:
     int age;
     vector<Day *> days;
     Salary_Configs *level;
-    Team *team;
+    Team *team = NULL;
 };
 
 class Data_Base
@@ -199,8 +209,8 @@ public:
             Team team_temp;
             team_temp.set_fields(team_info);
             teams.push_back(team_temp);
-            set_team_pointers_for_employees(teams.back());
         }
+        set_teams_pointers_for_employees();
     }
 
     Salary_Configs *find_salary_configs_by_level(string employees_info)
@@ -241,10 +251,27 @@ public:
         }
     }
 
+    void show_team()
+    {
+        for (auto team : teams)
+        {
+            team.show();
+            cout << endl;
+        }
+    }
+
 private:
     vector<Employee> employees;
     vector<Team> teams;
     vector<Salary_Configs> salary_configs;
+
+    void set_teams_pointers_for_employees()
+    {
+        for (int i = 0; i < teams.size(); i++)
+        {
+            set_team_pointers_for_employees(teams[i]);
+        }
+    }
 };
 
 vector<vector<string>> get_info_from_csv(string file_name)
@@ -266,11 +293,12 @@ vector<vector<string>> get_info_from_csv(string file_name)
     return data;
 }
 
-void get_inputs_from_csv(Data_Base &Base)
+void get_inputs_from_csv(Data_Base &Base , string address)
 {
-    Base.transfer_to_salarys(get_info_from_csv(file_salary));
-    Base.transfer_to_employees(get_info_from_csv(file_employee));
-    Base.transfer_to_teams(get_info_from_csv(file_team));
+    
+    Base.transfer_to_salarys(get_info_from_csv(address + file_salary));
+    Base.transfer_to_employees(get_info_from_csv(address + file_employee));
+    Base.transfer_to_teams(get_info_from_csv(address + file_team));
 }
 
 int read_command_convert_to_int(string input)
@@ -298,10 +326,11 @@ int read_command_convert_to_int(string input)
     return -1;
 }
 
-int main()
+int main(int argc, char * argv[])
 {
+    string address = argv[1];
     Data_Base base;
-    get_inputs_from_csv(base);
+    get_inputs_from_csv(base , address + '/');
     base.show_employee();
-    base.show_salary();
+    base.show_team();
 }
