@@ -171,9 +171,10 @@ public:
     void show()
     {
         cout << id << " ";
-        if (team != NULL)
+        for (auto i : days)
         {
-            cout << team->get_team_id() << " ";
+            i.show();
+            cout << endl;
         }
     }
 
@@ -373,5 +374,4 @@ int main(int argc, char *argv[])
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
     base.show_employee();
-    base.show_team();
 }
