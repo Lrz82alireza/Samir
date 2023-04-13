@@ -52,6 +52,13 @@ public:
         working_interval = {stoi(working_hours[0]), stoi(working_hours[1])};
     }
 
+    void show()
+    {
+        cout << day << " / "
+            << working_interval.first << "-"
+            << working_interval.second;
+    }
+
     void set_day(int init_day)
     {
         day = init_day;
