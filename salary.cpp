@@ -46,19 +46,27 @@ class Day
 public:
     void set_fields(vector<string> day_info)
     {
-        day = stoi(day_info[1]);
+        if (working_interval.size() == 0)
+            day = stoi(day_info[1]);
 
         vector<string> working_hours = seperate_words(day_info[2], "-");
-        working_interval = {stoi(working_hours[0]), stoi(working_hours[1])};
+
+        working_interval.push_back({stoi(working_hours[0]), stoi(working_hours[1])});
     }
 
     void show()
     {
-        cout << day << " / "
-            << working_interval.first << "-"
-            << working_interval.second;
+        for (auto i : working_interval)
+        {
+            cout << day << " / "
+                 << i.first << "-"
+                 << i.second << endl;  
+        }
     }
 
+    int get_day_num() { return day; }
+
+    /*
     void set_day(int init_day)
     {
         day = init_day;
@@ -73,10 +81,11 @@ public:
     {
         working_interval = init_times;
     }
+    */
 
 private:
     int day;
-    pair<int, int> working_interval = {0, 0};
+    vector<pair<int, int>> working_interval;
 
     bool check_interval_working(pair<int, int> hour)
     {
@@ -163,9 +172,15 @@ public:
 
     void make_new_day(vector<string> day_info)
     {
-        Day new_day;
-        new_day.set_fields(day_info); 
-        days.push_back(new_day);
+        Day *target_day = find_day_by_number(stoi(day_info[1]));
+        if (target_day == NULL)
+        {
+            Day new_day;
+            new_day.set_fields(day_info);
+            days.push_back(new_day);
+            return;
+        }
+        target_day->set_fields(day_info);
     }
 
     void show()
@@ -188,6 +203,16 @@ private:
     vector<Day> days;
     Salary_Configs *level;
     Team *team = NULL;
+
+    Day *find_day_by_number(int number_of_day)
+    {
+        for (int i = 0; i < days.size(); i++)
+        {
+            if (days[i].get_day_num() == number_of_day)
+                return &days[i];
+        }
+        return NULL;
+    }
 };
 
 class Data_Base
