@@ -110,16 +110,12 @@ private:
 class Employee
 {
 public:
-    void set_fields(vector<string> input)
+    void set_fields(vector<string> input, Salary_Configs *salary_address)
     {
         id = stoi(input[0]);
         name = input[1];
         age = stoi(input[2]);
-    }
-
-    void set_level(Salary_Configs * init_level)
-    {
-        level = init_level;
+        level = salary_address;
     }
 
     void show()
@@ -187,13 +183,14 @@ public:
         }
     }
 
-    void find_salary_configs_by_level(Employee & employee, string employees_info)
+    Salary_Configs *find_salary_configs_by_level(string employees_info)
     {
         for (int i = 0 ; i < salary_configs.size() ; i++)
         {
             if (employees_info == salary_configs[i].get_level())
-                employee.set_level(&salary_configs[i]);
+                return &(salary_configs[i]);
         }
+        return NULL;
     }
 
     void transfer_to_employees(vector<vector<string>> employees_info)
@@ -201,8 +198,7 @@ public:
         for (auto employee_info : employees_info)
         {
             Employee temp_employee;
-            temp_employee.set_fields(employee_info);
-            find_salary_configs_by_level(temp_employee, employee_info[3]);
+            temp_employee.set_fields(employee_info, find_salary_configs_by_level(employee_info[3]));
             employees.push_back(temp_employee);
         }
     }
