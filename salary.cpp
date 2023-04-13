@@ -6,6 +6,7 @@
 #include <map>
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
 
 using namespace std;
 
@@ -19,6 +20,9 @@ const string SEPRATE_MEMBERS_CHAR = "$";
 const string SPREAT_CSV_CHAR = ",";
 const string SEPREAT_TIME_CHAR = "-";
 const float PERSENT = 100.00;
+
+class Employee;
+int team_total_working_hours(vector<Employee> team_members);
 
 enum commands
 {
@@ -139,6 +143,13 @@ public:
         bonus_working_hours_max_variance = stof(team_info[4]);
     }
 
+    void fill_team_info_map(map<string, string> &team_report)
+    {
+        team_report["ID"] = to_string(team_id);
+        team_report["Head ID"] = to_string(team_head_id);
+        team_report["Bonus"] = to_string(bonus_min_working_hours);
+    }
+
     void show()
     {
         cout << team_id << " "
@@ -146,8 +157,9 @@ public:
     }
 
     int get_team_id() { return team_id; }
-    vector<int> get_team_ids() { return member_ids; }
+    vector<int> get_member_ids() { return member_ids; }
     int get_bonus_min_working_hours() { return bonus_working_hours_max_variance; }
+    int get_head_id() { return team_head_id; }
 
 private:
     int team_id;
@@ -293,7 +305,7 @@ class Data_Base
 {
 public:
     map<string, string> report_employee_salary(int id);
-    vector<map<string, string>> report_saliries()
+    vector<map<string, string>> report_salaries()
     {
         vector<map<string, string>> all_reports;
         int id = 1;
@@ -310,6 +322,59 @@ public:
             id++;
         }
         return all_reports;
+    }
+
+    vector<map<string, string>> report_team_salary(int team_id)
+    {
+        vector<map<string, string>> team_reports;
+        Team *target_team = find_team_by_id(team_id);
+        map<string, string> temp_map;
+
+        if (target_team == NULL)
+        {
+            temp_map["Error"] = "found";
+            team_reports.push_back(temp_map);
+            return team_reports;
+        }
+
+        target_team->fill_team_info_map(temp_map);
+        temp_map["Head Name"] = find_employee_by_id(target_team->get_head_id())->get_name();
+
+        vector<Employee> team_members = find_employees_by_id(target_team->get_member_ids());
+        temp_map["Team Total Working Hours"] = to_string(team_total_working_hours(team_members));
+
+        float avg_total_earning = (stof(temp_map["Team Total Working Hours"]) / team_members.size());
+        temp_map["Average Member Working Hour"] = to_string(avg_total_earning);
+        team_reports.push_back(temp_map);
+
+        for (auto team_member : team_members)
+        {
+            map<string, string> memeber_info;
+            memeber_info["Member ID"] = to_string(team_member.get_id());
+            memeber_info["Total Earning"] = to_string(team_member.caculate_total_earning());
+            team_reports.push_back(memeber_info);
+        }
+        return team_reports;
+    }
+
+    Team *find_team_by_id(int team_id)
+    {
+        for (int i = 0; i < teams.size(); i++)
+        {
+            if (teams[i].get_team_id() == team_id)
+                return &teams[i];
+        }
+        return NULL;
+    }
+
+    vector<Employee> find_employees_by_id(vector<int> member_ids)
+    {
+        vector<Employee> team_members;
+        for (auto member_id : member_ids)
+        {
+            team_members.push_back(*find_employee_by_id(member_id));
+        }
+        return team_members;
     }
 
     void transfer_to_days(vector<vector<string>> employees_days);
@@ -419,7 +484,7 @@ Employee *Data_Base::find_employee_by_id(int id)
 
 void Data_Base::set_team_pointers_for_employees(Team &team)
 {
-    vector<int> team_members = team.get_team_ids();
+    vector<int> team_members = team.get_member_ids();
     for (int j = 0; j < team_members.size(); j++)
     {
         Employee *target_employee = find_employee_by_id(team_members[j]);
@@ -449,6 +514,31 @@ map<string, string> Data_Base::report_employee_salary(int id)
 }
 //**********************************************************************
 
+void print_report_team_salary(Data_Base &base, int team_id)
+{
+    vector<map<string, string>> team_reports = base.report_team_salary(team_id);
+    if (team_reports[0]["Error"] == "found")
+    {
+        cout << "TEAM_NOT_FOUND" << endl;
+        return;
+    }
+
+    cout << "ID: " + team_reports[0]["ID"] << endl
+         << "Head ID: " + team_reports[0]["Head ID"] << endl
+         << "Head Name: " + team_reports[0]["Head Name"] << endl
+         << "Team Total Working Hours: " + team_reports[0]["Team Total Working Hours"] << endl
+         << "Average Member Working Hour: " << fixed << setprecision(1) << stof(team_reports[0]["Average Member Working Hour"]) << endl
+         << "Bonus: " + team_reports[0]["Bonus"] << endl
+         << "---" << endl;
+
+    for (int i = 1; i < team_reports.size(); i++)
+    {
+        cout << "Member ID: " + team_reports[i]["Member ID"] << endl
+             << "Total Earning: " + team_reports[i]["Total Earning"] << endl
+             << "---" << endl;
+    }
+}
+
 void print_report_of_employee_salary(Data_Base &base, int id)
 {
     map<string, string> report = base.report_employee_salary(id);
@@ -473,14 +563,14 @@ void print_report_of_employee_salary(Data_Base &base, int id)
 
 void print_report_salaries(Data_Base &base)
 {
-    vector<map<string, string>> all_reports = base.report_saliries();
+    vector<map<string, string>> all_reports = base.report_salaries();
     for (auto report : all_reports)
     {
         cout << "ID: " << report["ID"] << endl
-        << "Name: " << report["Name"] << endl
-        << "Total Working Hours: " << report["Total Working Hours"] << endl
-        << "Total Earning: " << report["Total Earning"] << endl;
-        cout << "---" << endl ;
+             << "Name: " << report["Name"] << endl
+             << "Total Working Hours: " << report["Total Working Hours"] << endl
+             << "Total Earning: " << report["Total Earning"] << endl;
+        cout << "---" << endl;
     }
 }
 
@@ -536,7 +626,7 @@ int read_command_convert_to_int(string input)
     return -1;
 }
 
-int command_manager(Data_Base &base)
+void command_manager(Data_Base &base)
 {
     string command;
     cin >> command;
@@ -551,11 +641,21 @@ int command_manager(Data_Base &base)
     }
 }
 
+int team_total_working_hours(vector<Employee> team_members)
+    {
+        int sum = 0;
+        for (auto team_member : team_members)
+        {
+            sum += team_member.calculate_total_hours();
+        }
+        return sum;
+    }
+
 int main(int argc, char *argv[])
 {
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    print_report_salaries(base);
-    //command_manager(base);
+    print_report_team_salary(base, 1);
+    // command_manager(base);
 }
