@@ -14,6 +14,9 @@ const string file_salary = "salary_configs.csv";
 const string file_employee = "employees.csv";
 const string file_team = "teams.csv";
 const string file_working_hours = "working_hours.csv";
+const string SEPRATE_MEMBERS_CHAR = "$";
+const string SPREAT_CSV_CHAR = ",";
+const string SEPREAT_TIME_CHAR = "-";
 
 enum commands
 {
@@ -51,7 +54,7 @@ public:
         if (working_interval.size() == 0)
             day = stoi(day_info[1]);
 
-        vector<string> working_hours = seperate_words(day_info[2], "-");
+        vector<string> working_hours = seperate_words(day_info[2], SEPREAT_TIME_CHAR);
 
         working_interval.push_back({stoi(working_hours[0]), stoi(working_hours[1])});
     }
@@ -61,7 +64,7 @@ public:
         for (auto i : working_interval)
         {
             cout << day << " / "
-                 << i.first << "-"
+                 << i.first << SEPREAT_TIME_CHAR
                  << i.second << endl;  
         }
     }
@@ -121,7 +124,7 @@ public:
     {
         team_id = stoi(team_info[0]);
         team_head_id = stoi(team_info[1]);
-        vector<string> temp = seperate_words(team_info[2], "$");
+        vector<string> temp = seperate_words(team_info[2], SEPRATE_MEMBERS_CHAR);
         for (auto s : temp)
             member_ids.push_back(stoi(s));
         bonus_min_working_hours = stoi(team_info[3]);
@@ -386,7 +389,7 @@ vector<vector<string>> get_info_from_csv(string file_name)
     while (getline(file, line))
     {
         data.resize(size);
-        vector<string> row = seperate_words(line, ",");
+        vector<string> row = seperate_words(line, SPREAT_CSV_CHAR);
         for (auto x : row)
             data[size - 1].push_back(x);
         size++;
