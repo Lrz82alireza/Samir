@@ -428,16 +428,16 @@ void print_report_of_employee_salary(Data_Base &base, int id)
     }
 
     cout << "ID: " + report["ID"] << endl
-        << "Name: " + report["Name"] << endl
-        << "Age: " + report["Age"] << endl
-        << "Level: " + report["Level"] << endl
-        << "Team ID: " + report["Team ID"] << endl
-        << "Total Working Hours: " + report["Total Working Hours"] << endl
-        << "Absent Days: " + report["Absent Days"] << endl
-        << "Salary: " + report["Salary"] << endl
-        << "Bonus: " + report["Bonus"] << endl
-        << "Tax: " + report["Tax"] << endl
-        << "Total Earning: " + report["Total Earning"] << endl;
+         << "Name: " + report["Name"] << endl
+         << "Age: " + report["Age"] << endl
+         << "Level: " + report["Level"] << endl
+         << "Team ID: " + report["Team ID"] << endl
+         << "Total Working Hours: " + report["Total Working Hours"] << endl
+         << "Absent Days: " + report["Absent Days"] << endl
+         << "Salary: " + report["Salary"] << endl
+         << "Bonus: " + report["Bonus"] << endl
+         << "Tax: " + report["Tax"] << endl
+         << "Total Earning: " + report["Total Earning"] << endl;
 }
 
 vector<vector<string>> get_info_from_csv(string file_name)
@@ -492,10 +492,25 @@ int read_command_convert_to_int(string input)
     return -1;
 }
 
+int command_manager(Data_Base base)
+{
+    string command;
+    cin >> command;
+    switch (read_command_convert_to_int(command))
+    {
+    case REPORT_EMPLOYEE_SALARY:
+    {
+        int id;
+        cin >> id;
+        print_report_of_employee_salary(base, id);
+    }
+    }
+}
+
 int main(int argc, char *argv[])
 {
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    print_report_of_employee_salary(base, 1);
+    command_manager(base);
 }
