@@ -109,6 +109,15 @@ public:
              << tax_percentage << " ";
     }
 
+    void fill_salary_report(map<string, int> &report)
+    {
+        report["Base Salary"] = base_salary;
+        report["Salary Per Hour"] = salary_per_hour;
+        report["Salary Per Extra Hour"] = salary_per_extra_hour;
+        report["Official Working Hours"] = official_working_hours;
+        report["Tax"] = tax_percentage;
+    }
+
     string get_level() { return level; }
     int get_salary_per_extra_hour() { return salary_per_hour; }
     int get_official_working_hours() { return official_working_hours; }
@@ -183,6 +192,18 @@ public:
     int get_id() { return id; }
     string get_name() { return name; }
     int get_age() { return age; }
+
+    int calculate_work_hour_in_day(int init_day)
+    {
+        int sum_work_hour = 0;
+        for (auto day : days)
+        {
+            if (day.get_day_num() == init_day)
+                for (auto working_interval : day.get_working_interval())
+                    sum_work_hour += (working_interval.second - working_interval.first);
+        }
+        return sum_work_hour;
+    }
 
     void show()
     {
@@ -310,6 +331,47 @@ public:
             id++;
         }
         return all_reports;
+    }
+    vector<map<int, int>> report_total_hours_per_day(int first, int second)
+    {
+        int total_hour;
+        vector<map<int, int>> schedule;
+        vector<int> days = split(first, second);
+        for (auto day : days)
+        {
+            total_hour = 0;
+            map<int, int> schedule_day;
+            for (auto employee : employees)
+                total_hour += employee.calculate_work_hour_in_day(day);
+
+            schedule_day[day] = total_hour;
+            schedule.push_back(schedule_day);
+        }
+        return schedule;
+    }
+    map<string, int> report_salary_config(string level)
+    {
+        map<string, int> report;
+        Salary_Configs *target_salary_config = find_salary_configs_by_level(level);
+        if (target_salary_config == NULL)
+        {
+            report["Error"] = true;
+            return report;
+        }
+        target_salary_config->fill_salary_report(report);
+        return (report);
+    }
+
+    vector<int> split(int firs_number, int second_number)
+    {
+        vector<int> numbers;
+        int first = firs_number;
+        int second = second_number;
+        for (int number = first; number <= second_number; number++)
+        {
+            numbers.push_back(number);
+        }
+        return numbers;
     }
 
     void transfer_to_days(vector<vector<string>> employees_days);
@@ -477,11 +539,41 @@ void print_report_salaries(Data_Base &base)
     for (auto report : all_reports)
     {
         cout << "ID: " << report["ID"] << endl
-        << "Name: " << report["Name"] << endl
-        << "Total Working Hours: " << report["Total Working Hours"] << endl
-        << "Total Earning: " << report["Total Earning"] << endl;
-        cout << "---" << endl ;
+             << "Name: " << report["Name"] << endl
+             << "Total Working Hours: " << report["Total Working Hours"] << endl
+             << "Total Earning: " << report["Total Earning"] << endl;
+        cout << "---" << endl;
     }
+}
+
+void print_report_total_hours_per_day(Data_Base &base, int first_day, int last_day)
+{
+    if (first_day < 1 || last_day > 30)
+    {
+        cout << "INVALID_ARGUMENTS" << endl;
+        return;
+    }
+    vector<map<int, int>> schedule = base.report_total_hours_per_day(first_day, last_day);
+    for (int i = first_day, j = 0; i <= last_day; i++, j++)
+    {
+        map<int, int> schedule_day = schedule[j];
+        cout << "Day #" + to_string(i) + ": " << schedule_day[i] << endl;
+    }
+}
+
+void show_salary_config(Data_Base &base, string level_name)
+{
+    map<string, int> report = base.report_salary_config(level_name);
+    if (report["Error"])
+    {
+        cout << "INVALID_LEVEL";
+        return;
+    }
+    cout << "Base Salary: " << report["Base Salary"] << endl
+         << "Salary Per Hour: " << report["Salary Per Hour"] << endl
+         << "Salary Per Extra Hour: " << report["Salary Per Extra Hour"] << endl
+         << "Official Working Hours: " << report["Official Working Hours"] << endl
+         << "Tax: " << report["Tax"] << '%' << endl;
 }
 
 vector<vector<string>> get_info_from_csv(string file_name)
@@ -548,6 +640,19 @@ int command_manager(Data_Base &base)
         cin >> id;
         print_report_of_employee_salary(base, id);
     }
+    case REPORT_TOTAL_HOURS_PER_DAY:
+    {
+        int first, second;
+        cin >> first;
+        cin >> second;
+        print_report_total_hours_per_day(base, first, second);
+    }
+    case SHOW_SALARY_CONFIG:
+    {
+        string level_name;
+        cin >> level_name;
+        show_salary_config(base, level_name);
+    }
     }
 }
 
@@ -556,6 +661,7 @@ int main(int argc, char *argv[])
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    print_report_salaries(base);
-    //command_manager(base);
+    // print_report_total_hours_per_day(base , 1 , 30);
+    //  show_salary_config(base , "fsdfsdf");
+    //  command_manager(base);
 }
