@@ -8,6 +8,7 @@
 
 using namespace std;
 
+const int days_of_mounth = 30;
 const string file_salary = "salary_configs.csv";
 const string file_employee = "employees.csv";
 const string file_team = "teams.csv";
@@ -44,32 +45,30 @@ vector<string> seperate_words(const string line, string separate_char)
 class Day
 {
 public:
-    void set_fields(vector<string> day_info)
-    {
-        day = stoi(day_info[1]);
+    // void set_fields(vector<string> day_info)
+    //{
+    //     day = stoi(day_info[1]);
+    //
+    //    vector<string> working_hours = seperate_words(day_info[2], "-");
+    //    working_interval = {stoi(working_hours[0]), stoi(working_hours[1])};
+    //}
+    //
+    // void set_day(int init_day)
+    //{
+    //    day = init_day;
+    //}
+    // pair<int, int> read_interval_working_from_csv(string init_times)
+    //{
+    //    vector<string> times_s = seperate_words(init_times, "-");
+    //    pair<int, int> times_i = {stoi(times_s[0]), stoi(times_s[1])};
+    //    return times_i;
+    //}
 
-        vector<string> working_hours = seperate_words(day_info[2], "-");
-        working_interval = {stoi(working_hours[0]), stoi(working_hours[1])};
-    }
-
-    void set_day(int init_day)
-    {
-        day = init_day;
-    }
-    pair<int, int> read_interval_working_from_csv(string init_times)
-    {
-        vector<string> times_s = seperate_words(init_times, "-");
-        pair<int, int> times_i = {stoi(times_s[0]), stoi(times_s[1])};
-        return times_i;
-    }
-    void set_interval_working(pair<int, int> init_times)
-    {
-        working_interval = init_times;
-    }
+    vector<pair<int, int>> get_working_interval() { return working_interval; }
 
 private:
     int day;
-    pair<int, int> working_interval = {0, 0};
+    vector<pair<int, int>> working_interval;
 
     bool check_interval_working(pair<int, int> hour)
     {
@@ -157,7 +156,7 @@ public:
     void make_new_day(vector<string> day_info)
     {
         Day new_day;
-        new_day.set_fields(day_info); 
+        // new_day.set_fields(day_info);
         days.push_back(new_day);
     }
 
@@ -170,8 +169,42 @@ public:
         }
     }
 
+    int calculate_total_hours()
+    {
+        int total_hours = 0;
+        for (auto day : days)
+        {
+            for (auto pair : day.get_working_interval())
+            {
+                total_hours += (pair.second - pair.first);
+            }
+        }
+    }
+
+    int calculate_absent_days() { return (days_of_mounth - days.size()); }
+    
+    //int calculate_salary() 
+
     void set_team_pointer(Team *init_team) { team = init_team; }
+
+    void fill_employee_info_map(map<string, string>& report)
+    {
+        report["ID"] = id;
+        report["Name"] = name;
+        report["Age"] = to_string(age);
+        report["Level"] = level->get_level();
+        if (team != NULL)
+            report["Team ID"] = to_string(team->get_team_id());
+        else
+            report["Team ID"] = "N/A";
+        report["Total Working Hours"] = to_string(calculate_total_hours());
+        report["Absent Days"] = to_string(calculate_absent_days());
+        //report["Salary"] = to_string()
+    }
+
     int get_id() { return id; }
+    string get_name() { return name; }
+    int get_age() { return age; }
 
 private:
     int id;
@@ -185,6 +218,19 @@ private:
 class Data_Base
 {
 public:
+    map<string, string> report_employee_salary(int id)
+    {
+        map<string, string> report;
+        for (auto employee : employees)
+        {
+            if (employee.get_id() == id)
+            {
+                employee.fill_employee_info_map(report);
+            }
+        }
+        return report;
+    }
+
     void transfer_to_days(vector<vector<string>> employees_days)
     {
         for (auto employee_days : employees_days)
@@ -193,6 +239,8 @@ public:
             target_employee->make_new_day(employee_days);
         }
     }
+
+    vector<Employee> get_employees() { return employees; }
 
     void transfer_to_salarys(vector<vector<string>> salarys_info);
     void set_team_pointers_for_employees(Team &team);
