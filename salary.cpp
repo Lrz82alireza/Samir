@@ -6,7 +6,6 @@
 #include <map>
 #include <algorithm>
 
-
 using namespace std;
 
 const string file_salary = "salary_configs.csv";
@@ -96,6 +95,7 @@ public:
              << base_salary << " "
              << tax_percentage << " ";
     }
+
     string get_level() { return level; }
 
 private:
@@ -128,7 +128,6 @@ public:
     }
 
     int get_team_id() { return team_id; }
-
     vector<int> get_team_ids() { return member_ids; }
 
 private:
@@ -160,7 +159,6 @@ public:
     }
 
     void set_team_pointer(Team *init_team) { team = init_team; }
-
     int get_id() { return id; }
 
 private:
@@ -179,93 +177,15 @@ public:
     {
     }
 
-    void transfer_to_salarys(vector<vector<string>> salarys_info)
-    {
-        for (auto salary_info : salarys_info)
-        {
-            Salary_Configs temp_salary_configs;
-            temp_salary_configs.set_fields(salary_info);
-            salary_configs.push_back(temp_salary_configs);
-        }
-    }
-
-    void set_team_pointers_for_employees(Team &team)
-    {
-        vector<int> team_members = team.get_team_ids();
-        for (int j = 0; j < team_members.size(); j++)
-        {
-            Employee *target_employee = find_employee_by_id(team_members[j]);
-            target_employee->set_team_pointer(&team);
-        }
-    }
-
-    Employee *find_employee_by_id(int id)
-    {
-        for (int i = 0; i < employees.size(); i++)
-        {
-            if (employees[i].get_id() == id)
-                return &employees[i];
-        }
-        return NULL;
-    }
-
-    void transfer_to_teams(vector<vector<string>> teams_info)
-    {
-        for (auto team_info : teams_info)
-        {
-            Team team_temp;
-            team_temp.set_fields(team_info);
-            teams.push_back(team_temp);
-        }
-        set_teams_pointers_for_employees();
-    }
-
-    Salary_Configs *find_salary_configs_by_level(string employees_info)
-    {
-        for (int i = 0; i < salary_configs.size(); i++)
-        {
-            if (employees_info == salary_configs[i].get_level())
-                return &(salary_configs[i]);
-        }
-        return NULL;
-    }
-
-    void transfer_to_employees(vector<vector<string>> employees_info)
-    {
-        for (auto employee_info : employees_info)
-        {
-            Employee temp_employee;
-            temp_employee.set_fields(employee_info, find_salary_configs_by_level(employee_info[3]));
-            employees.push_back(temp_employee);
-        }
-    }
-
-    void show_salary()
-    {
-        for (auto salary : salary_configs)
-        {
-            salary.show();
-            cout << endl;
-        }
-    }
-
-    void show_employee()
-    {
-        for (auto employee : employees)
-        {
-            employee.show();
-            cout << endl;
-        }
-    }
-
-    void show_team()
-    {
-        for (auto team : teams)
-        {
-            team.show();
-            cout << endl;
-        }
-    }
+    void transfer_to_salarys(vector<vector<string>> salarys_info);
+    void set_team_pointers_for_employees(Team &team);
+    Employee *find_employee_by_id(int id);
+    void transfer_to_teams(vector<vector<string>> teams_info);
+    Salary_Configs *find_salary_configs_by_level(string employees_info);
+    void transfer_to_employees(vector<vector<string>> employees_info);
+    void show_salary();
+    void show_team();
+    void show_employee();
 
 private:
     vector<Employee> employees;
@@ -280,6 +200,96 @@ private:
         }
     }
 };
+
+//*********************** Data_Base methods ****************************
+void Data_Base::show_team()
+{
+    for (auto team : teams)
+    {
+        team.show();
+        cout << endl;
+    }
+}
+
+void Data_Base::show_employee()
+{
+    for (auto employee : employees)
+    {
+        employee.show();
+        cout << endl;
+    }
+}
+
+void Data_Base::show_salary()
+{
+    for (auto salary : salary_configs)
+    {
+        salary.show();
+        cout << endl;
+    }
+}
+
+void Data_Base::transfer_to_employees(vector<vector<string>> employees_info)
+{
+    for (auto employee_info : employees_info)
+    {
+        Employee temp_employee;
+        temp_employee.set_fields(employee_info, find_salary_configs_by_level(employee_info[3]));
+        employees.push_back(temp_employee);
+    }
+}
+
+Salary_Configs *Data_Base::find_salary_configs_by_level(string employees_info)
+{
+    for (int i = 0; i < salary_configs.size(); i++)
+    {
+        if (employees_info == salary_configs[i].get_level())
+            return &(salary_configs[i]);
+    }
+    return NULL;
+}
+
+void Data_Base::transfer_to_teams(vector<vector<string>> teams_info)
+{
+    for (auto team_info : teams_info)
+    {
+        Team team_temp;
+        team_temp.set_fields(team_info);
+        teams.push_back(team_temp);
+    }
+    set_teams_pointers_for_employees();
+}
+
+Employee *Data_Base::find_employee_by_id(int id)
+{
+    for (int i = 0; i < employees.size(); i++)
+    {
+        if (employees[i].get_id() == id)
+            return &employees[i];
+    }
+    return NULL;
+}
+
+void Data_Base::set_team_pointers_for_employees(Team &team)
+{
+    vector<int> team_members = team.get_team_ids();
+    for (int j = 0; j < team_members.size(); j++)
+    {
+        Employee *target_employee = find_employee_by_id(team_members[j]);
+        target_employee->set_team_pointer(&team);
+    }
+}
+
+void Data_Base::transfer_to_salarys(vector<vector<string>> salarys_info)
+{
+    for (auto salary_info : salarys_info)
+    {
+        Salary_Configs temp_salary_configs;
+        temp_salary_configs.set_fields(salary_info);
+        salary_configs.push_back(temp_salary_configs);
+    }
+}
+//**********************************************************************
 
 vector<vector<string>> get_info_from_csv(string file_name)
 {
@@ -300,9 +310,9 @@ vector<vector<string>> get_info_from_csv(string file_name)
     return data;
 }
 
-void get_inputs_from_csv(Data_Base &Base , string address)
+void get_inputs_from_csv(Data_Base &Base, string address)
 {
-    
+
     Base.transfer_to_salarys(get_info_from_csv(address + file_salary));
     Base.transfer_to_employees(get_info_from_csv(address + file_employee));
     Base.transfer_to_teams(get_info_from_csv(address + file_team));
@@ -333,11 +343,11 @@ int read_command_convert_to_int(string input)
     return -1;
 }
 
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
     string address = argv[1];
     Data_Base base;
-    get_inputs_from_csv(base , address + '/');
+    get_inputs_from_csv(base, address + '/');
     base.show_employee();
     base.show_team();
 }
