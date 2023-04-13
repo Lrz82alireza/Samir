@@ -45,7 +45,6 @@ class Day
 public:
     void set_fields(vector<string> input)
     {
-
     }
 
     void set_day(int init_day)
@@ -62,6 +61,7 @@ public:
     {
         working_interval = init_times;
     }
+
 private:
     int day;
     pair<int, int> working_interval = {0, 0};
@@ -106,6 +106,30 @@ private:
     int tax_percentage;
 };
 
+class Team
+{
+public:
+    void set_fields(vector<string> team_info)
+    {
+        team_id = stoi(team_info[0]);
+        team_head_id = stoi(team_info[1]);
+        vector<string> temp = seperate_words(team_info[2], "$");
+        for (auto s : temp)
+            member_ids.push_back(stoi(s));
+        bonus_min_working_hours = stoi(team_info[3]);
+        bonus_working_hours_max_variance = stof(team_info[4]);
+    }
+
+    vector<int> get_team_ids() { return member_ids; }
+
+private:
+    int team_id;
+    int team_head_id;
+    vector<int> member_ids;
+    int bonus_min_working_hours;
+    float bonus_working_hours_max_variance;
+};
+
 class Employee
 {
 public:
@@ -116,7 +140,7 @@ public:
         age = stoi(input[2]);
     }
 
-    void set_level(Salary_Configs * init_level)
+    void set_level(Salary_Configs *init_level)
     {
         level = init_level;
     }
@@ -129,33 +153,17 @@ public:
              << level->get_level() << " ";
     }
 
+    void set_team_pointer(Team *init_team) { team = init_team; }
+
+    int get_id() { return id; }
+
 private:
     int id;
     string name;
     int age;
     vector<Day *> days;
     Salary_Configs *level;
-};
-
-class Team
-{
-public:
-    void set_fields(vector<string> team_info)
-    {
-        team_id = stoi(team_info[0]);
-        team_head_id = stoi(team_info[1]);
-        vector <string> temp = seperate_words(team_info[2] , "$");
-        for (auto s : temp)
-            member_ids.push_back(stoi(s));
-        bonus_min_working_hours = stoi(team_info[3]);
-        bonus_working_hours_max_variance = stof(team_info[4]);
-    }
-private:
-    int team_id;
-    int team_head_id;
-    vector <int> member_ids;
-    int bonus_min_working_hours;
-    float bonus_working_hours_max_variance;
+    Team *team;
 };
 
 class Data_Base
@@ -163,7 +171,6 @@ class Data_Base
 public:
     void transfer_to_days(vector<vector<string>> days_info)
     {
-        
     }
 
     void transfer_to_salarys(vector<vector<string>> salarys_info)
@@ -176,6 +183,19 @@ public:
         }
     }
 
+    void set_team_pointers_for_employees(Team &team)
+    {
+        vector<int> team_members = team.get_team_ids();
+        for (int i = 0; i < employees.size(); i++)
+        {
+            for (int j = 0; j < team_members.size(); j++)
+            {
+                if (employees[i].get_id() == team_members[j])
+                    employees[i].set_team_pointer(&team);
+            }
+        }
+    }
+
     void transfer_to_teams(vector<vector<string>> teams_info)
     {
         for (auto team_info : teams_info)
@@ -183,12 +203,13 @@ public:
             Team team_temp;
             team_temp.set_fields(team_info);
             teams.push_back(team_temp);
+            set_team_pointers_for_employees(team_temp);
         }
     }
 
-    void find_salary_configs_by_level(Employee & employee, string employees_info)
+    void find_salary_configs_by_level(Employee &employee, string employees_info)
     {
-        for (int i = 0 ; i < salary_configs.size() ; i++)
+        for (int i = 0; i < salary_configs.size(); i++)
         {
             if (employees_info == salary_configs[i].get_level())
                 employee.set_level(&salary_configs[i]);
