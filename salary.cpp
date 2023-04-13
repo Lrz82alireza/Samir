@@ -45,26 +45,28 @@ vector<string> seperate_words(const string line, string separate_char)
 class Day
 {
 public:
-    // void set_fields(vector<string> day_info)
-    //{
-    //     day = stoi(day_info[1]);
-    //
-    //    vector<string> working_hours = seperate_words(day_info[2], "-");
-    //    working_interval = {stoi(working_hours[0]), stoi(working_hours[1])};
-    //}
-    //
-    // void set_day(int init_day)
-    //{
-    //    day = init_day;
-    //}
-    // pair<int, int> read_interval_working_from_csv(string init_times)
-    //{
-    //    vector<string> times_s = seperate_words(init_times, "-");
-    //    pair<int, int> times_i = {stoi(times_s[0]), stoi(times_s[1])};
-    //    return times_i;
-    //}
+    void set_fields(vector<string> day_info)
+    {
+        if (working_interval.size() == 0)
+            day = stoi(day_info[1]);
 
-    vector<pair<int, int>> get_working_interval() { return working_interval; }
+        vector<string> working_hours = seperate_words(day_info[2], "-");
+
+        working_interval.push_back({stoi(working_hours[0]), stoi(working_hours[1])});
+    }
+
+    void show()
+    {
+        for (auto i : working_interval)
+        {
+            cout << day << " / "
+                 << i.first << "-"
+                 << i.second << endl;  
+        }
+    }
+
+    int get_day_num() { return day; }
+    vector<pair<int, int>> get_working_interval() {return working_interval; }
 
 private:
     int day;
@@ -155,17 +157,24 @@ public:
 
     void make_new_day(vector<string> day_info)
     {
-        Day new_day;
-        // new_day.set_fields(day_info);
-        days.push_back(new_day);
+        Day *target_day = find_day_by_number(stoi(day_info[1]));
+        if (target_day == NULL)
+        {
+            Day new_day;
+            new_day.set_fields(day_info);
+            days.push_back(new_day);
+            return;
+        }
+        target_day->set_fields(day_info);
     }
 
     void show()
     {
         cout << id << " ";
-        if (team != NULL)
+        for (auto i : days)
         {
-            cout << team->get_team_id() << " ";
+            i.show();
+            cout << endl;
         }
     }
 
@@ -213,6 +222,16 @@ private:
     vector<Day> days;
     Salary_Configs *level;
     Team *team = NULL;
+
+    Day *find_day_by_number(int number_of_day)
+    {
+        for (int i = 0; i < days.size(); i++)
+        {
+            if (days[i].get_day_num() == number_of_day)
+                return &days[i];
+        }
+        return NULL;
+    }
 };
 
 class Data_Base
@@ -414,5 +433,4 @@ int main(int argc, char *argv[])
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
     base.show_employee();
-    base.show_team();
 }
