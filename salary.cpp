@@ -199,7 +199,7 @@ public:
             Team team_temp;
             team_temp.set_fields(team_info);
             teams.push_back(team_temp);
-            set_team_pointers_for_employees(team_temp);
+            set_team_pointers_for_employees(teams.back());
         }
     }
 
