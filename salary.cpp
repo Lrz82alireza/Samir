@@ -101,7 +101,7 @@ public:
         official_working_hours = stoi(input[4]);
         tax_percentage = stoi(input[5]);
     }
-    
+
     void show()
     {
         cout << level << " "
@@ -160,7 +160,6 @@ private:
 class Employee
 {
 public:
-
     void set_fields(vector<string> input, Salary_Configs *salary_address);
     void set_team_pointer(Team *init_team) { team = init_team; }
     void set_new_day(vector<string> day_info);
@@ -173,6 +172,13 @@ public:
     int calculate_tax();
 
     void fill_employee_info_map(map<string, string> &report);
+    void fill_all_employees_info_map(map<string, string> &report)
+    {
+        report["ID"] = to_string(id);
+        report["Name"] = name;
+        report["Total Working Hours"] = to_string(calculate_total_hours());
+        report["Total Earning"] = to_string(caculate_total_earning());
+    }
 
     int get_id() { return id; }
     string get_name() { return name; }
@@ -270,23 +276,41 @@ void Employee::set_fields(vector<string> input, Salary_Configs *salary_address)
     level = salary_address;
 }
 void Employee::set_new_day(vector<string> day_info)
+{
+    Day *target_day = find_day_by_number(stoi(day_info[1]));
+    if (target_day == NULL)
     {
-        Day *target_day = find_day_by_number(stoi(day_info[1]));
-        if (target_day == NULL)
-        {
-            Day new_day;
-            new_day.set_fields(day_info);
-            days.push_back(new_day);
-            return;
-        }
-        target_day->set_fields(day_info);
+        Day new_day;
+        new_day.set_fields(day_info);
+        days.push_back(new_day);
+        return;
     }
+    target_day->set_fields(day_info);
+}
 //*********************************************************************
 
 class Data_Base
 {
 public:
     map<string, string> report_employee_salary(int id);
+    vector<map<string, string>> report_saliries()
+    {
+        vector<map<string, string>> all_reports;
+        int id = 1;
+        Employee *target_employee;
+        map<string, string> report;
+        for (auto employee : employees)
+        {
+            target_employee = find_employee_by_id(id);
+            if (target_employee != NULL)
+            {
+                target_employee->fill_all_employees_info_map(report);
+                all_reports.push_back(report);
+            }
+            id++;
+        }
+        return all_reports;
+    }
 
     void transfer_to_days(vector<vector<string>> employees_days);
     void transfer_to_salarys(vector<vector<string>> salarys_info);
@@ -308,7 +332,6 @@ private:
     vector<Employee> employees;
     vector<Team> teams;
     vector<Salary_Configs> salary_configs;
-
     void set_teams_pointers_for_employees();
 };
 
@@ -448,6 +471,19 @@ void print_report_of_employee_salary(Data_Base &base, int id)
          << "Total Earning: " + report["Total Earning"] << endl;
 }
 
+void print_report_salaries(Data_Base &base)
+{
+    vector<map<string, string>> all_reports = base.report_saliries();
+    for (auto report : all_reports)
+    {
+        cout << "ID: " << report["ID"] << endl
+        << "Name: " << report["Name"] << endl
+        << "Total Working Hours: " << report["Total Working Hours"] << endl
+        << "Total Earning: " << report["Total Earning"] << endl;
+        cout << "---" << endl ;
+    }
+}
+
 vector<vector<string>> get_info_from_csv(string file_name)
 {
     vector<vector<string>> data;
@@ -500,7 +536,7 @@ int read_command_convert_to_int(string input)
     return -1;
 }
 
-int command_manager(Data_Base base)
+int command_manager(Data_Base &base)
 {
     string command;
     cin >> command;
@@ -520,5 +556,6 @@ int main(int argc, char *argv[])
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    command_manager(base);
+    print_report_salaries(base);
+    //command_manager(base);
 }
