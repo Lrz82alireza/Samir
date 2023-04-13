@@ -9,6 +9,7 @@
 using namespace std;
 
 const int days_of_mounth = 30;
+const int persent = 100;
 const string file_salary = "salary_configs.csv";
 const string file_employee = "employees.csv";
 const string file_team = "teams.csv";
@@ -61,12 +62,12 @@ public:
         {
             cout << day << " / "
                  << i.first << "-"
-                 << i.second << endl;  
+                 << i.second << endl;
         }
     }
 
     int get_day_num() { return day; }
-    vector<pair<int, int>> get_working_interval() {return working_interval; }
+    vector<pair<int, int>> get_working_interval() { return working_interval; }
 
 private:
     int day;
@@ -103,6 +104,10 @@ public:
     }
 
     string get_level() { return level; }
+    int get_salary_per_extra_hour() { return salary_per_hour; }
+    int get_official_working_hours() { return official_working_hours; }
+    int get_salary_per_hour() { return salary_per_hour; }
+    int get_tax_percentage() {return tax_percentage;}
 
 private:
     string level;
@@ -135,6 +140,7 @@ public:
 
     int get_team_id() { return team_id; }
     vector<int> get_team_ids() { return member_ids; }
+    int get_bonus_min_working_hours() { return bonus_working_hours_max_variance; }
 
 private:
     int team_id;
@@ -191,12 +197,38 @@ public:
     }
 
     int calculate_absent_days() { return (days_of_mounth - days.size()); }
-    
-    //int calculate_salary() 
+
+    int calculate_salary()
+    {
+        int total_hour = calculate_total_hours();
+
+        if (total_hour <= level->get_official_working_hours())
+            return (total_hour * level->get_salary_per_hour());
+        else if (total_hour > level->get_official_working_hours())
+        {
+            int official_hours = level->get_official_working_hours();
+            int basic_salary = official_hours * level->get_salary_per_hour();
+            int extra_salary = (total_hour - official_hours) * level->get_salary_per_extra_hour();
+            return (basic_salary + extra_salary);
+        }
+    }
+
+    int calculate_bonus()
+    {
+        if (team != NULL)
+            return (calculate_salary() * team->get_bonus_min_working_hours()) / persent;
+        return 0;
+    }
+
+    int calculate_tax()
+    {
+        int earning = calculate_salary() + calculate_bonus();
+        return (earning * level->get_tax_percentage()) / persent;
+    }
 
     void set_team_pointer(Team *init_team) { team = init_team; }
 
-    void fill_employee_info_map(map<string, string>& report)
+    void fill_employee_info_map(map<string, string> &report)
     {
         report["ID"] = id;
         report["Name"] = name;
@@ -208,7 +240,7 @@ public:
             report["Team ID"] = "N/A";
         report["Total Working Hours"] = to_string(calculate_total_hours());
         report["Absent Days"] = to_string(calculate_absent_days());
-        //report["Salary"] = to_string()
+        // report["Salary"] = to_string()
     }
 
     int get_id() { return id; }
