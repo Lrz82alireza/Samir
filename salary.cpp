@@ -9,6 +9,7 @@
 using namespace std;
 
 const int days_of_mounth = 30;
+const int DAY_LENGTH = 24;
 const string file_salary = "salary_configs.csv";
 const string file_employee = "employees.csv";
 const string file_team = "teams.csv";
@@ -76,8 +77,8 @@ private:
     {
         if (hour.first >= hour.second)
             return false;
-        if (hour.first > 24 || hour.first < 0 ||
-            hour.second > 24 || hour.second < 0)
+        if (hour.first > DAY_LENGTH || hour.first < 0 ||
+            hour.second > DAY_LENGTH || hour.second < 0)
             return false;
         return true;
     }
