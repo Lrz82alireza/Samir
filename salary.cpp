@@ -835,8 +835,6 @@ void delete_working_hours(Data_Base &base, int employee_id, int day_num)
 
 void add_working_hours(Data_Base &base, vector<string> input)
 {
-    cout << input[2] << endl; 
-
     Employee *employee = base.find_employee_by_id(stoi(input[EMPLOYEE_ID]));
 
     if (employee == NULL)
