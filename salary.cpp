@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
+#include <set>
 
 using namespace std;
 
@@ -19,6 +20,7 @@ const string FILE_WORKING_HOURS = "working_hours.csv";
 const string SEPRATE_MEMBERS_CHAR = "$";
 const string SPREAT_CSV_CHAR = ",";
 const string SEPREAT_TIME_CHAR = "-";
+const string NOT_CHANGING_CHAR = "-";
 const float PERSENT = 100.00;
 
 class Employee;
@@ -36,6 +38,32 @@ enum commands
     ADD_WORKING_HOURS,
     DELETE_WORKING_HOURS,
     UPDATE_TEAM_BONUS,
+};
+
+enum team_info_order
+{
+    TEAM_ID,
+    TEAM_HEAD_ID,
+    MEMBER_IDS,
+    BONUS_MIN_WORKING_HOURS,
+    BONUS_WORKING_HOURS_MAX_VARIANCE,
+};
+
+enum salary_config_info_order
+{
+    LEVEL,
+    BASE_SALARY,
+    SALARY_PER_HOUR,
+    SALARY_PER_EXTRA_HOUR,
+    OFFICIAL_WORKING_HOURS,
+    TAX_PERCENTAGE,
+};
+
+enum employee_info_order
+{
+    ID,
+    NAME,
+    AGE,
 };
 
 vector<string> seperate_words(const string line, string separate_char)
@@ -108,12 +136,20 @@ class Salary_Configs
 public:
     void set_fields(vector<string> input)
     {
-        level = input[0];
-        base_salary = stoi(input[1]);
-        salary_per_hour = stoi(input[2]);
-        salary_per_extra_hour = stoi(input[3]);
-        official_working_hours = stoi(input[4]);
-        tax_percentage = stoi(input[5]);
+        level = input[LEVEL];
+        base_salary = stoi(input[BASE_SALARY]);
+        salary_per_hour = stoi(input[SALARY_PER_HOUR]);
+        salary_per_extra_hour = stoi(input[SALARY_PER_EXTRA_HOUR]);
+        official_working_hours = stoi(input[OFFICIAL_WORKING_HOURS]);
+        tax_percentage = stoi(input[TAX_PERCENTAGE]);
+    }
+    void update_fields(vector<string> new_info)
+    {
+        set_field(base_salary, new_info[BASE_SALARY]);
+        set_field(salary_per_hour, new_info[SALARY_PER_HOUR]);
+        set_field(salary_per_extra_hour, new_info[SALARY_PER_EXTRA_HOUR]);
+        set_field(official_working_hours, new_info[OFFICIAL_WORKING_HOURS]);
+        set_field(tax_percentage, new_info[TAX_PERCENTAGE]);
     }
 
     void show()
@@ -146,6 +182,12 @@ private:
     int salary_per_extra_hour;
     int official_working_hours;
     int tax_percentage;
+
+    void set_field(int &field, string new_info)
+    {
+        if (new_info != NOT_CHANGING_CHAR)
+            field = stoi(new_info);
+    }
 };
 
 class Team
@@ -153,20 +195,28 @@ class Team
 public:
     void set_fields(vector<string> team_info)
     {
-        team_id = stoi(team_info[0]);
-        team_head_id = stoi(team_info[1]);
-        vector<string> temp = seperate_words(team_info[2], SEPRATE_MEMBERS_CHAR);
+        team_id = stoi(team_info[TEAM_ID]);
+        team_head_id = stoi(team_info[TEAM_HEAD_ID]);
+        vector<string> temp = seperate_words(team_info[MEMBER_IDS], SEPRATE_MEMBERS_CHAR);
         for (auto s : temp)
             member_ids.push_back(stoi(s));
-        bonus_min_working_hours = stoi(team_info[3]);
-        bonus_working_hours_max_variance = stof(team_info[4]);
+        bonus_min_working_hours = stoi(team_info[BONUS_MIN_WORKING_HOURS]);
+        bonus_working_hours_max_variance = stof(team_info[BONUS_WORKING_HOURS_MAX_VARIANCE]);
+    }
+    bool update_bonus(int bonus_percentage)
+    {
+        if (bonus_percentage > 100 || bonus_percentage < 0)
+            return false;
+
+        bonus = bonus_percentage;
+        return true;
     }
 
     void fill_team_info_map(map<string, string> &team_report)
     {
         team_report["ID"] = to_string(team_id);
         team_report["Head ID"] = to_string(team_head_id);
-        team_report["Bonus"] = to_string(bonus_min_working_hours);
+        team_report["Bonus"] = to_string(bonus);
     }
 
     void show()
@@ -179,6 +229,7 @@ public:
     vector<int> get_member_ids() { return member_ids; }
     int get_bonus_min_working_hours() { return bonus_working_hours_max_variance; }
     int get_head_id() { return team_head_id; }
+    int get_bonus() { return bonus; }
 
 private:
     int team_id;
@@ -186,6 +237,7 @@ private:
     vector<int> member_ids;
     int bonus_min_working_hours;
     float bonus_working_hours_max_variance;
+    int bonus = 0;
 };
 
 class Employee
@@ -295,7 +347,7 @@ int Employee::calculate_salary()
 int Employee::calculate_bonus()
 {
     if (team != NULL)
-        return round((calculate_salary() * team->get_bonus_min_working_hours()) / PERSENT);
+        return round((calculate_salary() * team->get_bonus()) / PERSENT);
     return 0;
 }
 int Employee::calculate_tax()
@@ -324,9 +376,9 @@ void Employee::fill_employee_info_map(map<string, string> &report)
 
 void Employee::set_fields(vector<string> input, Salary_Configs *salary_address)
 {
-    id = stoi(input[0]);
-    name = input[1];
-    age = stoi(input[2]);
+    id = stoi(input[ID]);
+    name = input[NAME];
+    age = stoi(input[AGE]);
     level = salary_address;
 }
 void Employee::set_new_day(vector<string> day_info)
@@ -616,6 +668,34 @@ map<string, string> Data_Base::report_employee_salary(int id)
 }
 //**********************************************************************
 
+void update_salary_config(Data_Base &base, vector<string> new_info)
+{
+    Salary_Configs *salary_configs = base.find_salary_configs_by_level(new_info[0]);
+    if (salary_configs == NULL)
+    {
+        cout << "INVALID_LEVEL" << endl;
+        return;
+    }
+    salary_configs->update_fields(new_info);
+    cout << "OK" << endl;
+}
+
+void update_team_bonus(Data_Base &base, int team_id, int bonus_percentage)
+{
+    Team *team = base.find_team_by_id(team_id);
+    if (team == NULL)
+    {
+        cout << "TEAM_NOT_FOUND" << endl;
+        return;
+    }
+    if (team->update_bonus(bonus_percentage))
+    {
+        cout << "OK" << endl;
+        return;
+    }
+    cout << "INVALID_ARGUMENTS" << endl;
+}
+
 void print_report_team_salary(Data_Base &base, int team_id)
 {
     vector<map<string, string>> team_reports = base.report_team_salary(team_id);
@@ -714,7 +794,11 @@ void print_min_elements_of_map(map<int, int> &mymap)
 
 void print_report_total_hours_per_day(Data_Base &base, int first_day, int last_day)
 {
+<<<<<<< HEAD
     if (first_day < 1 || last_day > DAYS_OF_MOUNTH)
+=======
+    if (first_day < 1 || last_day > DAYS_OF_MOUNTH || first_day > last_day)
+>>>>>>> a6264ea570fdc06ee4e9f1896c22f51e1db6f31a
     {
         cout << "INVALID_ARGUMENTS" << endl;
         return;
@@ -735,7 +819,7 @@ void show_salary_config(Data_Base &base, string level_name)
     map<string, int> report = base.report_salary_config(level_name);
     if (report["Error"])
     {
-        cout << "INVALID_LEVEL";
+        cout << "INVALID_LEVEL" << endl;
         return;
     }
     cout << "Base Salary: " << report["Base Salary"] << endl
@@ -901,9 +985,16 @@ int main(int argc, char *argv[])
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
+<<<<<<< HEAD
     report_employee_per_hour(base, 0, 24);
     // print_report_team_salary(base, 1);
     // print_report_total_hours_per_day(base, 1, 30);
     //  show_salary_config(base , "fsdfsdf");
+=======
+
+    print_report_team_salary(base, 1);
+    // print_report_total_hours_per_day(base , 18 , 18);
+    // show_salary_config(base , "fsdfsdf");
+>>>>>>> a6264ea570fdc06ee4e9f1896c22f51e1db6f31a
     //  command_manager(base);
 }
