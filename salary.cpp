@@ -110,14 +110,12 @@ public:
         vector<string> working_hours = seperate_words(input[WORKING_INTERVAL], SEPREAT_TIME_CHAR);
         pair<int, int> new_period = {stoi(working_hours[0]), stoi(working_hours[1])};
 
-        if (is_interval_working_valid(new_period))
+        if (!is_interval_working_valid(new_period))
         {
-            cout << "INVALID_ARGUMENTS" << endl;
             return INVALID_ARGUMENTS;
         }
         if (is_this_period_used(new_period))
         {
-            cout << "INVALID_INTERVAL" << endl;
             return INVALID_INTERVAL;
         }
 
@@ -782,6 +780,8 @@ void delete_working_hours(Data_Base &base, int employee_id, int day_num)
 
 void add_working_hours(Data_Base &base, vector<string> input)
 {
+    cout << input[2] << endl; 
+
     Employee *employee = base.find_employee_by_id(stoi(input[EMPLOYEE_ID]));
 
     if (employee == NULL)
@@ -793,7 +793,6 @@ void add_working_hours(Data_Base &base, vector<string> input)
 
     if (day_num < 0 || day_num > DAYS_OF_MOUNTH)
     {
-        cout << '/' << endl;
         cout << "INVALID_ARGUMENTS" << endl;
         return;
     }
@@ -804,7 +803,6 @@ void add_working_hours(Data_Base &base, vector<string> input)
     {
         employee->set_new_day(input);
     }
-
     else
     {
         int status = day->add_period_hours(input);
