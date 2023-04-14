@@ -110,14 +110,12 @@ public:
         vector<string> working_hours = seperate_words(input[WORKING_INTERVAL], SEPREAT_TIME_CHAR);
         pair<int, int> new_period = {stoi(working_hours[0]), stoi(working_hours[1])};
 
-        if (is_interval_working_valid(new_period))
+        if (!is_interval_working_valid(new_period))
         {
-            cout << "INVALID_ARGUMENTS" << endl;
             return INVALID_ARGUMENTS;
         }
         if (is_this_period_used(new_period))
         {
-            cout << "INVALID_INTERVAL" << endl;
             return INVALID_INTERVAL;
         }
 
@@ -467,6 +465,17 @@ void Employee::set_new_day(vector<string> day_info)
 class Data_Base
 {
 public:
+    /////////////////////////////////////////////////////////////
+    vector<Team *> teams_for_bonus()
+    {
+        vector<Team *> worthy_teams;
+        for (int i = 0; i < teams.size(); i++)
+        {
+            if (is_team_worthy(teams[i]))
+                worthy_teams.push_back(&teams[i]);
+        }
+    }
+
     map<string, string> report_employee_salary(int id);
     vector<map<string, string>> report_salaries()
     {
@@ -513,19 +522,6 @@ public:
         target_salary_config->fill_salary_report(report);
         return (report);
     }
-
-    vector<int> split(int firs_number, int second_number)
-    {
-        vector<int> numbers;
-        int first = firs_number;
-        int second = second_number;
-        for (int number = first; number <= second_number; number++)
-        {
-            numbers.push_back(number);
-        }
-        return numbers;
-    }
-
     vector<map<string, string>> report_team_salary(int team_id)
     {
         vector<map<string, string>> team_reports;
@@ -559,24 +555,16 @@ public:
         return team_reports;
     }
 
-    Team *find_team_by_id(int team_id)
+    vector<int> split(int firs_number, int second_number)
     {
-        for (int i = 0; i < teams.size(); i++)
+        vector<int> numbers;
+        int first = firs_number;
+        int second = second_number;
+        for (int number = first; number <= second_number; number++)
         {
-            if (teams[i].get_team_id() == team_id)
-                return &teams[i];
+            numbers.push_back(number);
         }
-        return NULL;
-    }
-
-    vector<Employee> find_employees_by_id(vector<int> member_ids)
-    {
-        vector<Employee> team_members;
-        for (auto member_id : member_ids)
-        {
-            team_members.push_back(*find_employee_by_id(member_id));
-        }
-        return team_members;
+        return numbers;
     }
 
     vector<float> avg_employee_in_working_interval(int start_time, int end_time)
@@ -620,6 +608,24 @@ public:
 
     void set_team_pointers_for_employees(Team &team);
 
+    Team *find_team_by_id(int team_id)
+    {
+        for (int i = 0; i < teams.size(); i++)
+        {
+            if (teams[i].get_team_id() == team_id)
+                return &teams[i];
+        }
+        return NULL;
+    }
+    vector<Employee> find_employees_by_id(vector<int> member_ids)
+    {
+        vector<Employee> team_members;
+        for (auto member_id : member_ids)
+        {
+            team_members.push_back(*find_employee_by_id(member_id));
+        }
+        return team_members;
+    }
     Employee *find_employee_by_id(int id);
     Salary_Configs *find_salary_configs_by_level(string employees_info);
 
@@ -633,6 +639,19 @@ private:
     vector<Employee> employees;
     vector<Team> teams;
     vector<Salary_Configs> salary_configs;
+    /////////////////////////////////////////////////////
+    bool is_team_worthy(Team team)
+    {
+        ///////////////////////
+    }
+    bool has_min_working_hours()
+    {
+        ///////////////////////
+    } 
+    bool has_max_working_hours_variance()
+    {
+        ///////////////////////
+    }
     void set_teams_pointers_for_employees();
     int number_of_employees_in_working_hour(int start_time, int end_time)
     {
@@ -764,6 +783,10 @@ map<string, string> Data_Base::report_employee_salary(int id)
 }
 //**********************************************************************
 
+void find_teams_for_bonus(Data_Base &base)
+{
+}
+
 void delete_working_hours(Data_Base &base, int employee_id, int day_num)
 {
     Employee *employee = base.find_employee_by_id(employee_id);
@@ -784,6 +807,8 @@ void delete_working_hours(Data_Base &base, int employee_id, int day_num)
 
 void add_working_hours(Data_Base &base, vector<string> input)
 {
+    cout << input[2] << endl; 
+
     Employee *employee = base.find_employee_by_id(stoi(input[EMPLOYEE_ID]));
 
     if (employee == NULL)
@@ -795,7 +820,6 @@ void add_working_hours(Data_Base &base, vector<string> input)
 
     if (day_num < 0 || day_num > DAYS_OF_MOUNTH)
     {
-        cout << '/' << endl;
         cout << "INVALID_ARGUMENTS" << endl;
         return;
     }
@@ -806,7 +830,6 @@ void add_working_hours(Data_Base &base, vector<string> input)
     {
         employee->set_new_day(input);
     }
-
     else
     {
         int status = day->add_period_hours(input);
