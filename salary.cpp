@@ -8,6 +8,7 @@
 #include <cmath>
 #include <iomanip>
 #include <set>
+#include <iterator>
 
 using namespace std;
 
@@ -300,6 +301,11 @@ public:
     void set_fields(vector<string> input, Salary_Configs *salary_address);
     void set_team_pointer(Team *init_team) { team = init_team; }
     void set_new_day(vector<string> day_info);
+    void delete_day(int day_num)
+    {
+        auto day_loc = next(days.begin(), distance(&days.front(), find_day_by_num(day_num)));
+        days.erase(day_loc);
+    }
 
     int calculate_absent_days() { return (DAYS_OF_MOUNTH - days.size()); }
     int caculate_total_earning() { return (calculate_salary() + calculate_bonus() - calculate_tax()); }
@@ -730,6 +736,24 @@ map<string, string> Data_Base::report_employee_salary(int id)
     return report;
 }
 //**********************************************************************
+
+void delete_working_hours(Data_Base &base, int employee_id, int day_num)
+{
+    Employee *employee = base.find_employee_by_id(employee_id);
+    if (employee == NULL)
+    {
+        cout << "EMPLOYEE_NOT_FOUND" << endl;
+        return;
+    }
+    if (day_num > DAY_LENGTH || day_num < 0)
+    {
+        cout << "INVALID_ARGUMENTS" << endl;
+        return;
+    }
+
+    employee->delete_day(day_num);
+    cout << "OK" << endl;
+}   
 
 void add_working_hours(Data_Base &base, vector<string> input)
 {
