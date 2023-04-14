@@ -13,6 +13,8 @@ using namespace std;
 
 const int DAYS_OF_MOUNTH = 30;
 const int DAY_LENGTH = 24;
+const int INVALID_ARGUMENTS = 1;
+const int INVALID_INTERVAL = 2;
 const string FILE_SALARY = "salary_configs.csv";
 const string FILE_EMPLOYEE = "employees.csv";
 const string FILE_TEAM = "teams.csv";
@@ -64,6 +66,14 @@ enum employee_info_order
     ID,
     NAME,
     AGE,
+    LEVEL_NAME,
+};
+
+enum working_hours_order
+{
+    EMPLOYEE_ID,
+    DAY,
+    WORKING_INTERVAL,
 };
 
 vector<string> seperate_words(const string line, string separate_char)
@@ -86,11 +96,31 @@ public:
     void set_fields(vector<string> day_info)
     {
         if (working_interval.size() == 0)
-            day = stoi(day_info[1]);
+            day = stoi(day_info[DAY]);
 
-        vector<string> working_hours = seperate_words(day_info[2], SEPREAT_TIME_CHAR);
+        vector<string> working_hours = seperate_words(day_info[WORKING_INTERVAL], SEPREAT_TIME_CHAR);
 
         working_interval.push_back({stoi(working_hours[0]), stoi(working_hours[1])});
+    }
+
+    int add_working_hours(vector<string> input)
+    {
+        vector<string> working_hours = seperate_words(input[WORKING_INTERVAL], SEPREAT_TIME_CHAR);
+        pair<int, int> new_period = {stoi(working_hours[0]), stoi(working_hours[1])};
+
+        if (is_interval_working_valid(new_period))
+        {
+            cout << "INVALID_ARGUMENTS" << endl;
+            return INVALID_ARGUMENTS;
+        }
+        if (is_this_period_used(new_period))
+        {
+            cout << "INVALID_INTERVAL" << endl;
+            return INVALID_INTERVAL;
+        }
+
+        working_interval.push_back(new_period);
+        return 3;
     }
 
     void show()
@@ -110,7 +140,30 @@ private:
     int day;
     vector<pair<int, int>> working_interval;
 
-    bool check_interval_working(pair<int, int> hour)
+    bool is_this_period_used(pair<int, int> hour)
+    {
+        for (auto cur_period : working_interval)
+        {
+            if (is_period1_in_preiod2(hour, cur_period))
+                return true;
+        }
+        return false;
+    }
+    bool is_period1_in_preiod2(pair<int, int> period1, pair<int, int> period2)
+    {
+        if (period1.first == period2.second)
+            return false;
+        if (period1.second == period2.first)
+            return false;
+        if (period1.first >= period2.first &&
+            period1.first <= period2.second)
+            return true;
+        if (period1.second >= period2.first &&
+            period1.second <= period2.second)
+            return true;
+        return false;    
+    }
+    bool is_interval_working_valid(pair<int, int> hour)
     {
         if (hour.first >= hour.second)
             return false;
@@ -243,6 +296,27 @@ public:
     int calculate_salary();
     int calculate_bonus();
     int calculate_tax();
+    int calculate_work_hour_in_day(int init_day)
+    {
+        int sum_work_hour = 0;
+        for (auto day : days)
+        {
+            if (day.get_day_num() == init_day)
+                for (auto working_interval : day.get_working_interval())
+                    sum_work_hour += (working_interval.second - working_interval.first);
+        }
+        return sum_work_hour;
+    }
+
+    Day *find_day_by_num(int day_num)
+    {
+        for (int i = 0; i < days.size(); i++)
+        {
+            if (days[i].get_day_num() == day_num)
+                return &days[i];
+        }
+        return NULL;
+    }
 
     void fill_employee_info_map(map<string, string> &report);
     void fill_all_employees_info_map(map<string, string> &report)
@@ -256,18 +330,6 @@ public:
     int get_id() { return id; }
     string get_name() { return name; }
     int get_age() { return age; }
-
-    int calculate_work_hour_in_day(int init_day)
-    {
-        int sum_work_hour = 0;
-        for (auto day : days)
-        {
-            if (day.get_day_num() == init_day)
-                for (auto working_interval : day.get_working_interval())
-                    sum_work_hour += (working_interval.second - working_interval.first);
-        }
-        return sum_work_hour;
-    }
 
     void show()
     {
@@ -362,7 +424,7 @@ void Employee::set_fields(vector<string> input, Salary_Configs *salary_address)
 }
 void Employee::set_new_day(vector<string> day_info)
 {
-    Day *target_day = find_day_by_number(stoi(day_info[1]));
+    Day *target_day = find_day_by_number(stoi(day_info[DAY]));
     if (target_day == NULL)
     {
         Day new_day;
@@ -544,7 +606,7 @@ void Data_Base::transfer_to_days(vector<vector<string>> employees_days)
 {
     for (auto employee_days : employees_days)
     {
-        Employee *target_employee = find_employee_by_id(stoi(employee_days[0]));
+        Employee *target_employee = find_employee_by_id(stoi(employee_days[EMPLOYEE_ID]));
         target_employee->set_new_day(employee_days);
     }
 }
@@ -553,7 +615,7 @@ void Data_Base::transfer_to_employees(vector<vector<string>> employees_info)
     for (auto employee_info : employees_info)
     {
         Employee temp_employee;
-        temp_employee.set_fields(employee_info, find_salary_configs_by_level(employee_info[3]));
+        temp_employee.set_fields(employee_info, find_salary_configs_by_level(employee_info[LEVEL_NAME]));
         employees.push_back(temp_employee);
     }
 }
@@ -628,15 +690,53 @@ map<string, string> Data_Base::report_employee_salary(int id)
 }
 //**********************************************************************
 
-void update_salary_config(Data_Base &base, vector<string> new_info)
+void add_working_hours(Data_Base &base, vector<string> input)
 {
-    Salary_Configs *salary_configs = base.find_salary_configs_by_level(new_info[0]);
+    Employee *employee = base.find_employee_by_id(stoi(input[EMPLOYEE_ID]));
+    if (employee == NULL)
+    {
+        cout << "EMPLOYEE_NOT_FOUND" << endl;
+        return;
+    }
+    int day_num = stoi(input[DAY]);
+    if (day_num < 0 || day_num > DAYS_OF_MOUNTH)
+    {
+        cout << "INVALID_ARGUMENTS" << endl;
+        return;
+    }
+
+    Day *day = employee->find_day_by_num(stoi(input[DAY]));
+    if (day == NULL)
+    {
+        employee->set_new_day(input);
+    }
+    else
+    {
+        int status = day->add_working_hours(input);
+        if(status == INVALID_ARGUMENTS)
+        {
+            cout << "INVALID_ARGUMENTS" << endl;
+            return;
+        }
+        if(status == INVALID_INTERVAL)
+        {
+            cout << "INVALID_INTERVAL" << endl;
+            return;
+        }
+    }
+
+    cout << "OK" << endl;
+}
+
+void update_salary_config(Data_Base &base, vector<string> new_salary_info)
+{
+    Salary_Configs *salary_configs = base.find_salary_configs_by_level(new_salary_info[LEVEL]);
     if (salary_configs == NULL)
     {
         cout << "INVALID_LEVEL" << endl;
         return;
     }
-    salary_configs->update_fields(new_info);
+    salary_configs->update_fields(new_salary_info);
     cout << "OK" << endl;
 }
 
