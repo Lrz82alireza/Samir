@@ -840,8 +840,6 @@ void delete_working_hours(Data_Base &base, int employee_id, int day_num)
 
 void add_working_hours(Data_Base &base, vector<string> input)
 {
-    cout << input[2] << endl;
-
     Employee *employee = base.find_employee_by_id(stoi(input[EMPLOYEE_ID]));
 
     if (employee == NULL)
@@ -1250,7 +1248,7 @@ public:
         string line;
         getline(cin, line);
         vector<string> temp = seperate_words(line, " ");
-        if (temp.size() == 0)
+        if (line == "")
             return false;
         int int_command = read_command_convert_to_int(temp[0]);
         command = int_command;
@@ -1270,6 +1268,7 @@ public:
         while (set_input())
         {
             command_manager(base, command, value);
+            cout << "---" << endl;
             input_clear();
         }
     }
