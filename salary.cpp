@@ -299,10 +299,15 @@ public:
     void set_fields(vector<string> input, Salary_Configs *salary_address);
     void set_team_pointer(Team *init_team) { team = init_team; }
     void set_new_day(vector<string> day_info);
-    void delete_day(int day_num)
+    bool delete_day(int day_num)
     {
-        auto day_loc = next(days.begin(), distance(&days.front(), find_day_by_num(day_num)));
-        days.erase(day_loc);
+        for (int i = 0; i < days.size(); i++)
+            if (&days[i] == find_day_by_num(day_num))
+            {
+                days.erase(days.begin() + i);
+                return true;
+            }
+        return false;
     }
 
     int calculate_absent_days() { return (DAYS_OF_MOUNTH - days.size()); }
@@ -465,7 +470,6 @@ void Employee::set_new_day(vector<string> day_info)
 class Data_Base
 {
 public:
-    /////////////////////////////////////////////////////////////
     vector<Team *> teams_for_bonus()
     {
         vector<Team *> worthy_teams;
@@ -581,14 +585,14 @@ public:
         return output;
     }
 
-    int calculate_total_hours_working_of_members(Team & team)//--------------------
+    int calculate_total_hours_working_of_members(Team &team) //--------------------
     {
         int total_team_hour = 0;
         vector<int> member_ids = team.get_member_ids();
         vector<Employee> employees = find_employees_by_id(member_ids);
         return (team_total_working_hours(employees));
     }
-    float calculate_variance_hours_working_of_members(Team & team)//-------------------
+    float calculate_variance_hours_working_of_members(Team &team) //-------------------
     {
         vector<int> member_ids = team.get_member_ids();
         vector<Employee> employees = find_employees_by_id(member_ids);
@@ -596,7 +600,7 @@ public:
         float power_sum = 0;
         for (auto member : employees)
         {
-            power_sum += pow((member.calculate_total_hours() - avr) , 2.00);
+            power_sum += pow((member.calculate_total_hours() - avr), 2.00);
         }
         return power_sum / (employees.size() - 1);
     }
@@ -647,7 +651,7 @@ private:
     bool has_min_working_hours()
     {
         ///////////////////////
-    } 
+    }
     bool has_max_working_hours_variance()
     {
         ///////////////////////
@@ -660,13 +664,6 @@ private:
             number += employee.number_of_days_include_working_interval(start_time, end_time);
         return number;
     }
-    //bool is_team_worthy(Team & team)
-    //{
-    //    if (calculate_total_hours_working_of_members(team) > team.get_bonus_min_working_hours())
-    //    {
-    //        if ()
-    //    }
-    //}
 };
 
 //*********************** Data_Base methods ****************************
@@ -790,6 +787,7 @@ void find_teams_for_bonus(Data_Base &base)
 void delete_working_hours(Data_Base &base, int employee_id, int day_num)
 {
     Employee *employee = base.find_employee_by_id(employee_id);
+
     if (employee == NULL)
     {
         cout << "EMPLOYEE_NOT_FOUND" << endl;
@@ -800,14 +798,13 @@ void delete_working_hours(Data_Base &base, int employee_id, int day_num)
         cout << "INVALID_ARGUMENTS" << endl;
         return;
     }
-
-    employee->delete_day(day_num);
-    cout << "OK" << endl;
+    if (employee->delete_day(day_num))
+        cout << "OK" << endl;
 }
 
 void add_working_hours(Data_Base &base, vector<string> input)
 {
-    cout << input[2] << endl; 
+    cout << input[2] << endl;
 
     Employee *employee = base.find_employee_by_id(stoi(input[EMPLOYEE_ID]));
 
@@ -1180,6 +1177,13 @@ void command_manager(Data_Base &base, int command, vector<string> input)
     {
         vector<string> new_input = {input[0], input[1], input[2] + '-' + input[3]};
         add_working_hours(base, new_input);
+        break;
+    }
+    case DELETE_WORKING_HOURS:
+    {
+        int employee_id = stoi(input[0]);
+        int day = stoi(input[1]);
+        delete_working_hours(base, employee_id, day);
         break;
     }
     }
