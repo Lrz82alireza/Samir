@@ -105,7 +105,7 @@ public:
         working_interval.push_back({stoi(working_hours[0]), stoi(working_hours[1])});
     }
 
-    int add_working_hours(vector<string> input)
+    int add_period_hours(vector<string> input)
     {
         vector<string> working_hours = seperate_words(input[WORKING_INTERVAL], SEPREAT_TIME_CHAR);
         pair<int, int> new_period = {stoi(working_hours[0]), stoi(working_hours[1])};
@@ -753,31 +753,36 @@ void delete_working_hours(Data_Base &base, int employee_id, int day_num)
 
     employee->delete_day(day_num);
     cout << "OK" << endl;
-}   
+}
 
 void add_working_hours(Data_Base &base, vector<string> input)
 {
     Employee *employee = base.find_employee_by_id(stoi(input[EMPLOYEE_ID]));
+
     if (employee == NULL)
     {
         cout << "EMPLOYEE_NOT_FOUND" << endl;
         return;
     }
     int day_num = stoi(input[DAY]);
+
     if (day_num < 0 || day_num > DAYS_OF_MOUNTH)
     {
+        cout << '/' << endl;
         cout << "INVALID_ARGUMENTS" << endl;
         return;
     }
 
     Day *day = employee->find_day_by_num(stoi(input[DAY]));
+
     if (day == NULL)
     {
         employee->set_new_day(input);
     }
+
     else
     {
-        int status = day->add_working_hours(input);
+        int status = day->add_period_hours(input);
         if (status == INVALID_ARGUMENTS)
         {
             cout << "INVALID_ARGUMENTS" << endl;
@@ -996,7 +1001,7 @@ void print_max_elements_of_vec(vector<float> const &v, int start_time)
 
 void print_report_employee_per_hour(Data_Base &base, int start_time, int end_time)
 {
-    if (start_time < 0 || end_time > 24 || start_time >= start_time)
+    if (start_time < 0 || end_time > 24 || start_time >= end_time)
     {
         cout << "INVALID_ARGUMENTS" << endl;
         return;
@@ -1088,7 +1093,6 @@ void command_manager(Data_Base &base, int command, vector<string> input)
     case SHOW_SALARY_CONFIG:
     {
         string level_name = input[0];
-        cout << level_name << endl;
         show_salary_config(base, level_name);
         break;
     }
@@ -1117,10 +1121,15 @@ void command_manager(Data_Base &base, int command, vector<string> input)
     }
     case UPDATE_TEAM_BONUS:
     {
-
         int team_id = stoi(input[0]);
         int bonus_percentage = stoi(input[1]);
         update_team_bonus(base, team_id, bonus_percentage);
+        break;
+    }
+    case ADD_WORKING_HOURS:
+    {
+        vector<string> new_input = {input[0], input[1], input[2] + '-' + input[3]};
+        add_working_hours(base, new_input);
         break;
     }
     }
@@ -1134,31 +1143,6 @@ int team_total_working_hours(vector<Employee> team_members)
         sum += team_member.calculate_total_hours();
     }
     return sum;
-}
-
-int read_command_convert_to_int(string input)
-{
-    if (input == "report_salaries")
-        return REPORT_SALARIES;
-    if (input == "report_employee_salary")
-        return REPORT_EMPLOYEE_SALARY;
-    if (input == "report_team_salary")
-        return REPORT_TEAM_SALARY;
-    if (input == "report_total_hours_per_day")
-        return REPORT_TOTAL_HOURS_PER_DAY;
-    if (input == "report_employee_per_hour")
-        return REPORT_EMPLOYEE_PER_HOUR;
-    if (input == "show_salary_config")
-        SHOW_SALARY_CONFIG;
-    if (input == "update_salary_config")
-        UPDATE_SALARY_CONFIG;
-    if (input == "add_working_hours")
-        return ADD_WORKING_HOURS;
-    if (input == "delete_working_hours")
-        return DELETE_WORKING_HOURS;
-    if (input == "update_team_bonus")
-        return UPDATE_TEAM_BONUS;
-    return -1;
 }
 
 class Input
@@ -1178,11 +1162,18 @@ public:
         return true;
     }
 
-    void get_input(Data_Base &base)
+    void input_clear()
+    {
+        int command = 0;
+        value.clear();
+    }
+
+    void print_result(Data_Base &base)
     {
         while (set_input())
         {
             command_manager(base, command, value);
+            input_clear();
         }
     }
 
@@ -1197,5 +1188,5 @@ int main(int argc, char *argv[])
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
     Input input;
-    input.get_input(base);
+    input.print_result(base);
 }
