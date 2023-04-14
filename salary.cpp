@@ -655,18 +655,12 @@ private:
     }
     bool has_min_working_hours(Team &team)
     {
-<<<<<<< HEAD
-        ///////////////////////
-    }
-    bool has_max_working_hours_variance()
-=======
         int total_hours = calculate_total_hours_working_of_members(team);
         if (total_hours > team.get_bonus_min_working_hours())
             return true;
         return false;
-    } 
+    }
     bool less_max_working_hours_variance(Team &team)
->>>>>>> 3cdeccaaccf1649afb010db5f936c849d13eb031
     {
         float variance = calculate_variance_hours_working_of_members(team);
         if (variance < team.get_bonus_working_hours_max_variance())
@@ -801,7 +795,7 @@ void print_worthy_teams(Data_Base &base, vector<Team *> worthy_teams)
 {
     if (worthy_teams.size() == 0)
         return;
-    Team * best_team = worthy_teams[0];
+    Team *best_team = worthy_teams[0];
 
     for (int i = 1; i < worthy_teams.size(); i++)
     {
@@ -809,7 +803,7 @@ void print_worthy_teams(Data_Base &base, vector<Team *> worthy_teams)
             base.calculate_total_hours_working_of_members(*worthy_teams[i]))
         {
             best_team = worthy_teams[i];
-        }    
+        }
     }
     cout << "Team ID: " << best_team->get_team_id() << endl;
 
@@ -1159,6 +1153,8 @@ int read_command_convert_to_int(string input)
         return DELETE_WORKING_HOURS;
     if (input == "update_team_bonus")
         return UPDATE_TEAM_BONUS;
+    if (input == "find_teams_for_bonus")
+        return FIND_TEAMS_FOR_BONUS;
     return -1;
 }
 
@@ -1226,6 +1222,11 @@ void command_manager(Data_Base &base, int command, vector<string> input)
         int employee_id = stoi(input[0]);
         int day = stoi(input[1]);
         delete_working_hours(base, employee_id, day);
+        break;
+    }
+    case FIND_TEAMS_FOR_BONUS:
+    {
+        find_teams_for_bonus(base);
         break;
     }
     }
