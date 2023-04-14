@@ -1059,7 +1059,7 @@ int main(int argc, char *argv[])
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    get_input(base);
+
     // report_employee_per_hour(base, 0, 24);
     //  print_report_team_salary(base, 1);
     //  print_report_total_hours_per_day(base, 1, 30);
