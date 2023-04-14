@@ -75,6 +75,16 @@ public:
         }
     }
 
+    bool is_working_interval_in_day(int first_time, int second_time)
+    {
+        for (auto working_hour : working_interval)
+        {
+            if (working_hour.first <= first_time && working_hour.second >= second_time)
+                return true;
+        }
+        return false;
+    }
+
     int get_day_num() { return day; }
     vector<pair<int, int>> get_working_interval() { return working_interval; }
 
@@ -227,6 +237,17 @@ public:
         }
     }
 
+    int number_of_days_include_working_interval(int start_time, int end_time)
+    {
+        int counter = 0;
+        for (auto day : days)
+        {
+            if (day.is_working_interval_in_day(start_time, end_time))
+                counter++;
+        }
+        return counter;
+    }
+
 private:
     int id;
     string name;
@@ -344,20 +365,18 @@ public:
         }
         return all_reports;
     }
-    vector<map<int, int>> report_total_hours_per_day(int first, int second)
+    map<int, int> report_total_hours_per_day(int first, int second)
     {
         int total_hour;
-        vector<map<int, int>> schedule;
         vector<int> days = split(first, second);
+        map<int, int> schedule;
         for (auto day : days)
         {
             total_hour = 0;
-            map<int, int> schedule_day;
             for (auto employee : employees)
                 total_hour += employee.calculate_work_hour_in_day(day);
 
-            schedule_day[day] = total_hour;
-            schedule.push_back(schedule_day);
+            schedule[day] = total_hour;
         }
         return schedule;
     }
@@ -439,6 +458,20 @@ public:
         return team_members;
     }
 
+    vector<float> avg_employee_in_working_interval(int start_time, int end_time)
+    {
+        vector<float> output;
+        vector<int> hours = split(start_time, end_time);
+        float avr;
+        int employees_num = employees.size();
+        for (int i = 0, j = i + 1; j < hours.size(); i++, j++)
+        {
+            avr = number_of_employees_in_working_hour(hours[i], hours[j]);
+            output.push_back(avr / employees_num);
+        }
+        return output;
+    }
+
     void transfer_to_days(vector<vector<string>> employees_days);
     void transfer_to_salarys(vector<vector<string>> salarys_info);
     void transfer_to_employees(vector<vector<string>> employees_info);
@@ -460,6 +493,13 @@ private:
     vector<Team> teams;
     vector<Salary_Configs> salary_configs;
     void set_teams_pointers_for_employees();
+    int number_of_employees_in_working_hour(int start_time, int end_time)
+    {
+        int number = 0;
+        for (auto employee : employees)
+            number += employee.number_of_days_include_working_interval(start_time, end_time);
+        return number;
+    }
 };
 
 //*********************** Data_Base methods ****************************
@@ -636,21 +676,58 @@ void print_report_salaries(Data_Base &base)
     }
 }
 
+int find_max_element_of_map(map<int, int> &mymap)
+{
+    int max = 0;
+    for (auto map : mymap)
+        if (map.second >= max)
+            max = map.second;
+    return max;
+}
+
+int find_min_element_of_map(map<int, int> &mymap)
+{
+    int min = mymap.begin()->second;
+    for (auto map : mymap)
+        if (map.second <= min)
+            min = map.second;
+    return min;
+}
+
+void print_max_elements_of_map(map<int, int> &mymap)
+{
+    int max_value = find_max_element_of_map(mymap);
+    for (auto map : mymap)
+        if (map.second == max_value)
+            cout << map.first << ' ';
+    cout << endl;
+}
+
+void print_min_elements_of_map(map<int, int> &mymap)
+{
+    int min_value = find_min_element_of_map(mymap);
+    for (auto map : mymap)
+        if (map.second == min_value)
+            cout << map.first << ' ';
+    cout << endl;
+}
+
 void print_report_total_hours_per_day(Data_Base &base, int first_day, int last_day)
 {
-    if (first_day < 1 || last_day > 30)
+    if (first_day < 1 || last_day > DAYS_OF_MOUNTH)
     {
         cout << "INVALID_ARGUMENTS" << endl;
         return;
     }
-    vector<map<int, int>> schedule = base.report_total_hours_per_day(first_day, last_day);
-    for (int i = first_day, j = 0; i <= last_day; i++, j++)
-    {
-        map<int, int> schedule_day = schedule[j];
-        cout << "Day #" + to_string(i) + ": " << schedule_day[i] << endl;
-    }
-    sort(schedule.begin(), schedule.end(), [](const auto& a, const auto& b) { return a.second < b.second; });
-    cout << schedule[0][0] << endl;
+    map<int, int> schedule = base.report_total_hours_per_day(first_day, last_day);
+    for (int day = first_day; day <= last_day; day++)
+        cout << "Day #" + to_string(day) + ": " << schedule[day] << endl;
+    cout << "---" << endl;
+
+    cout << "Day(s) with Max Working Hours: ";
+    print_max_elements_of_map(schedule);
+    cout << "Day(s) with Min Working Hours: ";
+    print_min_elements_of_map(schedule);
 }
 
 void show_salary_config(Data_Base &base, string level_name)
@@ -666,6 +743,67 @@ void show_salary_config(Data_Base &base, string level_name)
          << "Salary Per Extra Hour: " << report["Salary Per Extra Hour"] << endl
          << "Official Working Hours: " << report["Official Working Hours"] << endl
          << "Tax: " << report["Tax"] << '%' << endl;
+}
+
+void round_one_tenth(vector<float> &v)
+{
+    for (int i = 0; i < v.size(); i++)
+        v[i] = round(v[i] * 10) / 10;
+}
+
+float find_max_element_of_vec(vector<float> const &v)
+{
+    float max = 0.0;
+    for (auto e : v)
+        if (e >= max)
+            max = e;
+    return max;
+}
+
+float find_min_element_of_vec(vector<float> const &v)
+{
+    float min = v.front();
+    for (auto e : v)
+        if (e <= min)
+            min = e;
+    return min;
+}
+
+void print_min_elements_of_vec(vector<float> const &v, int start_time)
+{
+    float min = find_min_element_of_vec(v);
+    for (int i = 0; i < v.size(); i++)
+        if (v[i] == min)
+            cout << start_time + i << '-' << start_time + i + 1 << ' ';
+
+    cout << endl;
+}
+
+void print_max_elements_of_vec(vector<float> const &v, int start_time)
+{
+    float max = find_max_element_of_vec(v);
+    for (int i = 0; i < v.size(); i++)
+        if (v[i] == max)
+            cout << start_time + i << '-' << start_time + i + 1 << ' ';
+
+    cout << endl;
+}
+
+void report_employee_per_hour(Data_Base &base, int start_time, int end_time)
+{
+    int element = 0;
+    vector<float> avrs = base.avg_employee_in_working_interval(start_time, end_time);
+    round_one_tenth(avrs);
+    for (int first = start_time, second = first + 1; second <= end_time; first++, second++)
+    {
+        cout << first << '-' << second << ": " << avrs[element] << endl;
+        element++;
+    }
+    cout << "---" << endl;
+    cout << "Period(s) with Max Working Employees: ";
+    print_max_elements_of_vec(avrs, start_time);
+    cout << "Period(s) with Min Working Employees: ";
+    print_min_elements_of_vec(avrs, start_time);
 }
 
 vector<vector<string>> get_info_from_csv(string file_name)
@@ -763,8 +901,9 @@ int main(int argc, char *argv[])
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    //print_report_team_salary(base, 1);
-    print_report_total_hours_per_day(base, 18, 18);
+    report_employee_per_hour(base, 0, 24);
+    // print_report_team_salary(base, 1);
+    // print_report_total_hours_per_day(base, 1, 30);
     //  show_salary_config(base , "fsdfsdf");
     //  command_manager(base);
 }
