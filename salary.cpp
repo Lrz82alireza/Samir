@@ -794,11 +794,7 @@ void print_min_elements_of_map(map<int, int> &mymap)
 
 void print_report_total_hours_per_day(Data_Base &base, int first_day, int last_day)
 {
-<<<<<<< HEAD
-    if (first_day < 1 || last_day > DAYS_OF_MOUNTH)
-=======
     if (first_day < 1 || last_day > DAYS_OF_MOUNTH || first_day > last_day)
->>>>>>> a6264ea570fdc06ee4e9f1896c22f51e1db6f31a
     {
         cout << "INVALID_ARGUMENTS" << endl;
         return;
@@ -875,6 +871,11 @@ void print_max_elements_of_vec(vector<float> const &v, int start_time)
 
 void report_employee_per_hour(Data_Base &base, int start_time, int end_time)
 {
+    if (start_time < 0 || end_time > 24 || start_time >= start_time)
+    {
+        cout <<  "INVALID_ARGUMENTS" << endl;
+        return;
+    }
     int element = 0;
     vector<float> avrs = base.avg_employee_in_working_interval(start_time, end_time);
     round_one_tenth(avrs);
@@ -985,16 +986,9 @@ int main(int argc, char *argv[])
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-<<<<<<< HEAD
-    report_employee_per_hour(base, 0, 24);
+    //report_employee_per_hour(base, 0, 24);
     // print_report_team_salary(base, 1);
     // print_report_total_hours_per_day(base, 1, 30);
     //  show_salary_config(base , "fsdfsdf");
-=======
-
-    print_report_team_salary(base, 1);
-    // print_report_total_hours_per_day(base , 18 , 18);
-    // show_salary_config(base , "fsdfsdf");
->>>>>>> a6264ea570fdc06ee4e9f1896c22f51e1db6f31a
     //  command_manager(base);
 }
