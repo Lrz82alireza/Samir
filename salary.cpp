@@ -920,7 +920,100 @@ void get_inputs_from_csv(Data_Base &Base, string address)
 
 int read_command_convert_to_int(string input)
 {
-    if (input == "report_salies")
+    if (input == "report_salaries")
+        return REPORT_SALARIES;
+    if (input == "report_employee_salary")
+        return REPORT_EMPLOYEE_SALARY;
+    if (input == "report_team_salary")
+        return REPORT_TEAM_SALARY;
+    if (input == "report_total_hours_per_day")
+        return REPORT_TOTAL_HOURS_PER_DAY;
+    if (input == "report_employee_per_hour")
+        return REPORT_EMPLOYEE_PER_HOUR;
+    if (input == "show_salary_config")
+        return SHOW_SALARY_CONFIG;
+    if (input == "update_salary_config")
+        return UPDATE_SALARY_CONFIG;
+    if (input == "add_working_hours")
+        return ADD_WORKING_HOURS;
+    if (input == "delete_working_hours")
+        return DELETE_WORKING_HOURS;
+    if (input == "update_team_bonus")
+        return UPDATE_TEAM_BONUS;
+    return -1;
+}
+
+void command_manager(Data_Base &base, int command, vector<string> input)
+{
+    switch (command)
+    {
+    case REPORT_EMPLOYEE_SALARY:
+    {
+        int id = stoi(input[0]);
+        print_report_of_employee_salary(base, id);
+        break;
+    }
+    case REPORT_EMPLOYEE_PER_HOUR:
+    {
+        int first = stoi(input[0]);
+        int second = stoi(input[1]);
+        report_employee_per_hour(base, first, second);
+        break;
+    }
+    case SHOW_SALARY_CONFIG:
+    {
+        string level_name = input[0];
+        cout << level_name << endl;
+        show_salary_config(base, level_name);
+        break;
+    }
+    case REPORT_TEAM_SALARY:
+    {
+        int team_id = stoi(input[0]);
+        print_report_team_salary(base, team_id);
+        break;
+    }
+    case REPORT_SALARIES:
+    {
+        print_report_salaries(base);
+        break;
+    }
+    case REPORT_TOTAL_HOURS_PER_DAY:
+    {
+        int start_day = stoi(input[0]);
+        int end_day = stoi(input[1]);
+        print_report_total_hours_per_day(base, start_day, end_day);
+        break;
+    }
+    case UPDATE_SALARY_CONFIG:
+    {
+        update_salary_config(base, input);
+        break;
+    }
+    case UPDATE_TEAM_BONUS:
+    {
+
+        int team_id = stoi(input[0]);
+        int bonus_percentage = stoi(input[1]);
+        update_team_bonus(base, team_id, bonus_percentage);
+        break;
+    }
+    }
+}
+
+int team_total_working_hours(vector<Employee> team_members)
+{
+    int sum = 0;
+    for (auto team_member : team_members)
+    {
+        sum += team_member.calculate_total_hours();
+    }
+    return sum;
+}
+
+int read_command_convert_to_int(string input)
+{
+    if (input == "report_salaries")
         return REPORT_SALARIES;
     if (input == "report_employee_salary")
         return REPORT_EMPLOYEE_SALARY;
@@ -943,81 +1036,41 @@ int read_command_convert_to_int(string input)
     return -1;
 }
 
-void command_manager(Data_Base &base, int command , )
+class Input
 {
-    switch (command)
+public:
+    bool set_input()
     {
-    case REPORT_EMPLOYEE_SALARY:
-    {
-        int id;
-        cin >> id;
-        print_report_of_employee_salary(base, id);
+        string line;
+        getline(cin, line);
+        vector<string> temp = seperate_words(line, " ");
+        if (temp.size() == 0)
+            return false;
+        int int_command = read_command_convert_to_int(temp[0]);
+        command = int_command;
+        for (int i = 1; i < temp.size(); i++)
+            value.push_back(temp[i]);
+        return true;
     }
-    case REPORT_EMPLOYEE_PER_HOUR:
-    {
-        int first, second;
-        cin >> first;
-        cin >> second;
-        print_report_total_hours_per_day(base, first, second);
-    }
-    case SHOW_SALARY_CONFIG:
-    {
-        string level_name;
-        cin >> level_name;
-        show_salary_config(base, level_name);
-    }
-    case REPORT_TEAM_SALARY:
-    {
-        int team_id;
-        cin >> team_id;
-        print_report_team_salary(base, team_id);
-    }
-    case REPORT_SALARIES:
-    {
-        print_report_salaries(base);
-    }
-    case REPORT_TOTAL_HOURS_PER_DAY:
-    {
-        int start_day, end_day;
-        print_report_total_hours_per_day(base, start_day, end_day);
-    }
-    case UPDATE_SALARY_CONFIG:
-    {
-        string temp;
-        getline(cin, temp);
-        vector<string> input = seperate_words(temp, " ");
-        update_salary_config(base, input);
-    }
-    case UPDATE_TEAM_BONUS:
-    {
-        int team_id, bonus_percentage;
-        cin >> team_id;
-        cin >> bonus_percentage;
-        update_team_bonus(base, team_id, bonus_percentage);
-    }
-    }
-}
 
-int team_total_working_hours(vector<Employee> team_members)
-{
-    int sum = 0;
-    for (auto team_member : team_members)
+    void get_input(Data_Base &base)
     {
-        sum += team_member.calculate_total_hours();
+        while (set_input())
+        {
+            command_manager(base, command, value);
+        }
     }
-    return sum;
-}
+
+private:
+    int command;
+    vector<string> value;
+};
 
 int main(int argc, char *argv[])
 {
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-
-    string line;
-    while (getline(cin, line))
-    {
-        vector<string> command = seperate_words(line, " ");
-        command_manager(base, read_command_convert_to_int(command[0]));
-    }
+    Input input;
+    input.get_input(base);
 }
