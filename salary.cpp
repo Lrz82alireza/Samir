@@ -620,7 +620,7 @@ private:
     vector<Team> teams;
     vector<Salary_Configs> salary_configs;
     /////////////////////////////////////////////////////
-    bool is_team_worthy(Team team)
+    bool is_team_worthy(Team &team)
     {
         ///////////////////////
     }
