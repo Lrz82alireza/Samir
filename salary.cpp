@@ -40,6 +40,7 @@ enum commands
     ADD_WORKING_HOURS,
     DELETE_WORKING_HOURS,
     UPDATE_TEAM_BONUS,
+    FIND_TEAMS_FOR_BONUS,
 };
 
 enum team_info_order
@@ -171,7 +172,7 @@ private:
         if (period1.second >= period2.first &&
             period1.second <= period2.second)
             return true;
-        return false;    
+        return false;
     }
     bool is_interval_working_valid(pair<int, int> hour)
     {
@@ -753,12 +754,12 @@ void add_working_hours(Data_Base &base, vector<string> input)
     else
     {
         int status = day->add_working_hours(input);
-        if(status == INVALID_ARGUMENTS)
+        if (status == INVALID_ARGUMENTS)
         {
             cout << "INVALID_ARGUMENTS" << endl;
             return;
         }
-        if(status == INVALID_INTERVAL)
+        if (status == INVALID_INTERVAL)
         {
             cout << "INVALID_INTERVAL" << endl;
             return;
@@ -969,11 +970,11 @@ void print_max_elements_of_vec(vector<float> const &v, int start_time)
     cout << endl;
 }
 
-void report_employee_per_hour(Data_Base &base, int start_time, int end_time)
+void print_report_employee_per_hour(Data_Base &base, int start_time, int end_time)
 {
     if (start_time < 0 || end_time > 24 || start_time >= start_time)
     {
-        cout <<  "INVALID_ARGUMENTS" << endl;
+        cout << "INVALID_ARGUMENTS" << endl;
         return;
     }
     int element = 0;
@@ -1020,7 +1021,7 @@ void get_inputs_from_csv(Data_Base &Base, string address)
 
 int read_command_convert_to_int(string input)
 {
-    if (input == "report_salies")
+    if (input == "report_salaries")
         return REPORT_SALARIES;
     if (input == "report_employee_salary")
         return REPORT_EMPLOYEE_SALARY;
@@ -1043,31 +1044,93 @@ int read_command_convert_to_int(string input)
     return -1;
 }
 
-void command_manager(Data_Base &base)
+void command_manager(Data_Base &base, vector<string> inputs)
 {
-    string command;
-    cin >> command;
+    string command = inputs[0];
+    inputs.erase(inputs.begin());
+
     switch (read_command_convert_to_int(command))
     {
+    case REPORT_SALARIES:
+    {
+        print_report_salaries(base);
+        break;
+    }
     case REPORT_EMPLOYEE_SALARY:
     {
-        int id;
-        cin >> id;
+        int id = stoi(inputs[0]);
         print_report_of_employee_salary(base, id);
+        break;
+    }
+    case REPORT_TEAM_SALARY:
+    {
+        int team_id = stoi(inputs[0]);
+        print_report_team_salary(base, team_id);
+        break;
     }
     case REPORT_TOTAL_HOURS_PER_DAY:
     {
-        int first, second;
-        cin >> first;
-        cin >> second;
+        int first = stoi(inputs[0]),
+            second = stoi(inputs[1]);
         print_report_total_hours_per_day(base, first, second);
+        break;
+    }
+    case REPORT_EMPLOYEE_PER_HOUR:
+    {
+        int start_hour = stoi(inputs[0]),
+            end_hour = stoi(inputs[1]);
+        print_report_employee_per_hour(base, start_hour, end_hour);
+        break;
     }
     case SHOW_SALARY_CONFIG:
     {
-        string level_name;
-        cin >> level_name;
+        string level_name = inputs[0];
         show_salary_config(base, level_name);
+        break;
     }
+    case UPDATE_SALARY_CONFIG:
+    {
+        update_salary_config(base, inputs);
+        break;
+    }
+    case ADD_WORKING_HOURS:
+    {
+        add_working_hours(base, inputs);
+        break;
+    }
+    case DELETE_WORKING_HOURS:
+    {
+        //////////////////////
+    }
+    case UPDATE_TEAM_BONUS:
+    {
+        int team_id = stoi(inputs[0]),
+            bonus_percentage = stoi(inputs[1]);
+        update_team_bonus(base, team_id, bonus_percentage);
+        break;
+    }
+    }
+}
+
+vector<string> convert_string_to_vector(string input)
+{
+    stringstream inputs(input);
+    string temp;
+    vector<string> result;
+    while (getline(inputs, temp, ' '))
+    {
+        result.push_back(temp);
+    }
+    return result;
+}
+
+void get_input(Data_Base &base)
+{
+    string input;
+    while (getline(cin, input))
+    {
+        vector<string> inputs = convert_string_to_vector(input);
+        command_manager(base, inputs);
     }
 }
 
@@ -1086,9 +1149,10 @@ int main(int argc, char *argv[])
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    //report_employee_per_hour(base, 0, 24);
-    // print_report_team_salary(base, 1);
-    // print_report_total_hours_per_day(base, 1, 30);
-    //  show_salary_config(base , "fsdfsdf");
-    //  command_manager(base);
+    get_input(base);
+    // report_employee_per_hour(base, 0, 24);
+    //  print_report_team_salary(base, 1);
+    //  print_report_total_hours_per_day(base, 1, 30);
+    //   show_salary_config(base , "fsdfsdf");
+    //   command_manager(base);
 }
