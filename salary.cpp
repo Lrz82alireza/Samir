@@ -593,6 +593,26 @@ public:
         return output;
     }
 
+    int calculate_total_hours_working_of_members(Team & team)//--------------------
+    {
+        int total_team_hour = 0;
+        vector<int> member_ids = team.get_member_ids();
+        vector<Employee> employees = find_employees_by_id(member_ids);
+        return (team_total_working_hours(employees));
+    }
+    float calculate_variance_hours_working_of_members(Team & team)//-------------------
+    {
+        vector<int> member_ids = team.get_member_ids();
+        vector<Employee> employees = find_employees_by_id(member_ids);
+        float avr = calculate_total_hours_working_of_members(team) / employees.size();
+        float power_sum = 0;
+        for (auto member : employees)
+        {
+            power_sum += pow((member.calculate_total_hours() - avr) , 2.00);
+        }
+        return power_sum / (employees.size() - 1);
+    }
+
     void transfer_to_days(vector<vector<string>> employees_days);
     void transfer_to_salarys(vector<vector<string>> salarys_info);
     void transfer_to_employees(vector<vector<string>> employees_info);
@@ -621,6 +641,13 @@ private:
             number += employee.number_of_days_include_working_interval(start_time, end_time);
         return number;
     }
+    //bool is_team_worthy(Team & team)
+    //{
+    //    if (calculate_total_hours_working_of_members(team) > team.get_bonus_min_working_hours())
+    //    {
+    //        if ()
+    //    }
+    //}
 };
 
 //*********************** Data_Base methods ****************************
