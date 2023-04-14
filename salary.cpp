@@ -636,11 +636,6 @@ void print_report_salaries(Data_Base &base)
     }
 }
 
-bool mapValueComparator(const map<int, string> &lhs, const map<int, string> &rhs)
-{
-    return lhs.begin()->second < rhs.begin()->second;
-}
-
 void print_report_total_hours_per_day(Data_Base &base, int first_day, int last_day)
 {
     if (first_day < 1 || last_day > 30)
@@ -654,19 +649,8 @@ void print_report_total_hours_per_day(Data_Base &base, int first_day, int last_d
         map<int, int> schedule_day = schedule[j];
         cout << "Day #" + to_string(i) + ": " << schedule_day[i] << endl;
     }
-    //sort(schedule.begin(), schedule.end(), mapValueComparator);
-    //cout << "Day(s) with Max Working Hours: ";
-    //for (int i = 0; i < schedule.size(); i++)
-    //{
-    //    if (schedule[i][1] == schedule[schedule.size() - 1][1])
-    //        cout << schedule[i][0] << ' ';
-    //}
-    //cout << "Day(s) with Min Working Hours: ";
-    //for (int i = 0; i < schedule.size(); i++)
-    //{
-    //    if (schedule[i][1] == schedule[0][1])
-    //        cout << schedule[i][0] << ' ';
-    //}
+    sort(schedule.begin(), schedule.end(), [](const auto& a, const auto& b) { return a.second < b.second; });
+    cout << schedule[0][0] << endl;
 }
 
 void show_salary_config(Data_Base &base, string level_name)
@@ -779,7 +763,7 @@ int main(int argc, char *argv[])
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    print_report_team_salary(base, 1);
+    //print_report_team_salary(base, 1);
     print_report_total_hours_per_day(base, 18, 18);
     //  show_salary_config(base , "fsdfsdf");
     //  command_manager(base);
