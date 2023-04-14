@@ -300,10 +300,15 @@ public:
     void set_fields(vector<string> input, Salary_Configs *salary_address);
     void set_team_pointer(Team *init_team) { team = init_team; }
     void set_new_day(vector<string> day_info);
-    void delete_day(int day_num)
+    bool delete_day(int day_num)
     {
-        auto day_loc = next(days.begin(), distance(&days.front(), find_day_by_num(day_num)));
-        days.erase(day_loc);
+        for (int i = 0; i < days.size(); i++)
+            if (&days[i] == find_day_by_num(day_num))
+            {
+                days.erase(days.begin() + i);
+                return true;
+            }
+        return false;
     }
 
     int calculate_absent_days() { return (DAYS_OF_MOUNTH - days.size()); }
@@ -582,14 +587,14 @@ public:
         return output;
     }
 
-    int calculate_total_hours_working_of_members(Team & team)//--------------------
+    int calculate_total_hours_working_of_members(Team &team) //--------------------
     {
         int total_team_hour = 0;
         vector<int> member_ids = team.get_member_ids();
         vector<Employee> employees = find_employees_by_id(member_ids);
         return (team_total_working_hours(employees));
     }
-    float calculate_variance_hours_working_of_members(Team & team)//-------------------
+    float calculate_variance_hours_working_of_members(Team &team) //-------------------
     {
         vector<int> member_ids = team.get_member_ids();
         vector<Employee> employees = find_employees_by_id(member_ids);
@@ -597,7 +602,7 @@ public:
         float power_sum = 0;
         for (auto member : employees)
         {
-            power_sum += pow((member.calculate_total_hours() - avr) , 2.00);
+            power_sum += pow((member.calculate_total_hours() - avr), 2.00);
         }
         return power_sum / (employees.size() - 1);
     }
@@ -654,7 +659,7 @@ private:
         if (total_hours > team.get_bonus_min_working_hours())
             return true;
         return false;
-    } 
+    }
     bool less_max_working_hours_variance(Team &team)
     {
         float variance = calculate_variance_hours_working_of_members(team);
@@ -790,7 +795,7 @@ void print_worthy_teams(Data_Base &base, vector<Team *> worthy_teams)
 {
     if (worthy_teams.size() == 0)
         return;
-    Team * best_team = worthy_teams[0];
+    Team *best_team = worthy_teams[0];
 
     for (int i = 1; i < worthy_teams.size(); i++)
     {
@@ -798,7 +803,7 @@ void print_worthy_teams(Data_Base &base, vector<Team *> worthy_teams)
             base.calculate_total_hours_working_of_members(*worthy_teams[i]))
         {
             best_team = worthy_teams[i];
-        }    
+        }
     }
     cout << "Team ID: " << best_team->get_team_id() << endl;
 
@@ -818,6 +823,7 @@ void find_teams_for_bonus(Data_Base &base)
 void delete_working_hours(Data_Base &base, int employee_id, int day_num)
 {
     Employee *employee = base.find_employee_by_id(employee_id);
+
     if (employee == NULL)
     {
         cout << "EMPLOYEE_NOT_FOUND" << endl;
@@ -828,9 +834,8 @@ void delete_working_hours(Data_Base &base, int employee_id, int day_num)
         cout << "INVALID_ARGUMENTS" << endl;
         return;
     }
-
-    employee->delete_day(day_num);
-    cout << "OK" << endl;
+    if (employee->delete_day(day_num))
+        cout << "OK" << endl;
 }
 
 void add_working_hours(Data_Base &base, vector<string> input)
@@ -1146,6 +1151,8 @@ int read_command_convert_to_int(string input)
         return DELETE_WORKING_HOURS;
     if (input == "update_team_bonus")
         return UPDATE_TEAM_BONUS;
+    if (input == "find_teams_for_bonus")
+        return FIND_TEAMS_FOR_BONUS;
     return -1;
 }
 
@@ -1208,6 +1215,18 @@ void command_manager(Data_Base &base, int command, vector<string> input)
         add_working_hours(base, new_input);
         break;
     }
+    case DELETE_WORKING_HOURS:
+    {
+        int employee_id = stoi(input[0]);
+        int day = stoi(input[1]);
+        delete_working_hours(base, employee_id, day);
+        break;
+    }
+    case FIND_TEAMS_FOR_BONUS:
+    {
+        find_teams_for_bonus(base);
+        break;
+    }
     }
 }
 
@@ -1229,7 +1248,7 @@ public:
         string line;
         getline(cin, line);
         vector<string> temp = seperate_words(line, " ");
-        if (temp.size() == 0)
+        if (line == "")
             return false;
         int int_command = read_command_convert_to_int(temp[0]);
         command = int_command;
@@ -1249,6 +1268,7 @@ public:
         while (set_input())
         {
             command_manager(base, command, value);
+            cout << "---" << endl;
             input_clear();
         }
     }
