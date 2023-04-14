@@ -28,16 +28,16 @@ int team_total_working_hours(vector<Employee> team_members);
 
 enum commands
 {
-    REPORT_SALARIES,
-    REPORT_EMPLOYEE_SALARY,
-    REPORT_TEAM_SALARY,
-    REPORT_TOTAL_HOURS_PER_DAY,
-    REPORT_EMPLOYEE_PER_HOUR,
-    SHOW_SALARY_CONFIG,
-    UPDATE_SALARY_CONFIG,
+    REPORT_SALARIES,            //
+    REPORT_EMPLOYEE_SALARY,     //
+    REPORT_TEAM_SALARY,         //
+    REPORT_TOTAL_HOURS_PER_DAY, //
+    REPORT_EMPLOYEE_PER_HOUR,   //
+    SHOW_SALARY_CONFIG,         //
+    UPDATE_SALARY_CONFIG,       //
     ADD_WORKING_HOURS,
     DELETE_WORKING_HOURS,
-    UPDATE_TEAM_BONUS,
+    UPDATE_TEAM_BONUS, //
 };
 
 enum team_info_order
@@ -873,7 +873,7 @@ void report_employee_per_hour(Data_Base &base, int start_time, int end_time)
 {
     if (start_time < 0 || end_time > 24 || start_time >= start_time)
     {
-        cout <<  "INVALID_ARGUMENTS" << endl;
+        cout << "INVALID_ARGUMENTS" << endl;
         return;
     }
     int element = 0;
@@ -943,11 +943,9 @@ int read_command_convert_to_int(string input)
     return -1;
 }
 
-void command_manager(Data_Base &base)
+void command_manager(Data_Base &base, int command , )
 {
-    string command;
-    cin >> command;
-    switch (read_command_convert_to_int(command))
+    switch (command)
     {
     case REPORT_EMPLOYEE_SALARY:
     {
@@ -955,7 +953,7 @@ void command_manager(Data_Base &base)
         cin >> id;
         print_report_of_employee_salary(base, id);
     }
-    case REPORT_TOTAL_HOURS_PER_DAY:
+    case REPORT_EMPLOYEE_PER_HOUR:
     {
         int first, second;
         cin >> first;
@@ -967,6 +965,35 @@ void command_manager(Data_Base &base)
         string level_name;
         cin >> level_name;
         show_salary_config(base, level_name);
+    }
+    case REPORT_TEAM_SALARY:
+    {
+        int team_id;
+        cin >> team_id;
+        print_report_team_salary(base, team_id);
+    }
+    case REPORT_SALARIES:
+    {
+        print_report_salaries(base);
+    }
+    case REPORT_TOTAL_HOURS_PER_DAY:
+    {
+        int start_day, end_day;
+        print_report_total_hours_per_day(base, start_day, end_day);
+    }
+    case UPDATE_SALARY_CONFIG:
+    {
+        string temp;
+        getline(cin, temp);
+        vector<string> input = seperate_words(temp, " ");
+        update_salary_config(base, input);
+    }
+    case UPDATE_TEAM_BONUS:
+    {
+        int team_id, bonus_percentage;
+        cin >> team_id;
+        cin >> bonus_percentage;
+        update_team_bonus(base, team_id, bonus_percentage);
     }
     }
 }
@@ -986,9 +1013,11 @@ int main(int argc, char *argv[])
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    //report_employee_per_hour(base, 0, 24);
-    // print_report_team_salary(base, 1);
-    // print_report_total_hours_per_day(base, 1, 30);
-    //  show_salary_config(base , "fsdfsdf");
-    //  command_manager(base);
+
+    string line;
+    while (getline(cin, line))
+    {
+        vector<string> command = seperate_words(line, " ");
+        command_manager(base, read_command_convert_to_int(command[0]));
+    }
 }
