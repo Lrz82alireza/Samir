@@ -281,6 +281,7 @@ public:
     int get_team_id() { return team_id; }
     vector<int> get_member_ids() { return member_ids; }
     int get_bonus_min_working_hours() { return bonus_working_hours_max_variance; }
+    int get_bonus_working_hours_max_variance() { return bonus_working_hours_max_variance; }
     int get_head_id() { return team_head_id; }
     int get_bonus() { return bonus; }
 
@@ -465,7 +466,6 @@ void Employee::set_new_day(vector<string> day_info)
 class Data_Base
 {
 public:
-    /////////////////////////////////////////////////////////////
     vector<Team *> teams_for_bonus()
     {
         vector<Team *> worthy_teams;
@@ -474,6 +474,7 @@ public:
             if (is_team_worthy(teams[i]))
                 worthy_teams.push_back(&teams[i]);
         }
+        return worthy_teams;
     }
 
     map<string, string> report_employee_salary(int id);
@@ -639,18 +640,27 @@ private:
     vector<Employee> employees;
     vector<Team> teams;
     vector<Salary_Configs> salary_configs;
-    /////////////////////////////////////////////////////
+
     bool is_team_worthy(Team &team)
     {
-        ///////////////////////
+        if (has_min_working_hours(team) &&
+            less_max_working_hours_variance(team))
+            return true;
+        return false;
     }
-    bool has_min_working_hours()
+    bool has_min_working_hours(Team &team)
     {
-        ///////////////////////
+        int total_hours = calculate_total_hours_working_of_members(team);
+        if (total_hours > team.get_bonus_min_working_hours())
+            return true;
+        return false;
     } 
-    bool has_max_working_hours_variance()
+    bool less_max_working_hours_variance(Team &team)
     {
-        ///////////////////////
+        float variance = calculate_variance_hours_working_of_members(team);
+        if (variance < team.get_bonus_working_hours_max_variance())
+            return true;
+        return false;
     }
     void set_teams_pointers_for_employees();
     int number_of_employees_in_working_hour(int start_time, int end_time)
@@ -660,13 +670,6 @@ private:
             number += employee.number_of_days_include_working_interval(start_time, end_time);
         return number;
     }
-    //bool is_team_worthy(Team & team)
-    //{
-    //    if (calculate_total_hours_working_of_members(team) > team.get_bonus_min_working_hours())
-    //    {
-    //        if ()
-    //    }
-    //}
 };
 
 //*********************** Data_Base methods ****************************
@@ -783,8 +786,33 @@ map<string, string> Data_Base::report_employee_salary(int id)
 }
 //**********************************************************************
 
+void print_worthy_teams(Data_Base &base, vector<Team *> worthy_teams)
+{
+    if (worthy_teams.size() == 0)
+        return;
+    Team * best_team = worthy_teams[0];
+
+    for (int i = 1; i < worthy_teams.size(); i++)
+    {
+        if (base.calculate_total_hours_working_of_members(*best_team) <
+            base.calculate_total_hours_working_of_members(*worthy_teams[i]))
+        {
+            best_team = worthy_teams[i];
+        }    
+    }
+    cout << "Team ID: " << best_team->get_team_id() << endl;
+
+    for (int i = 0; i < worthy_teams.size(); i++)
+        if (best_team == worthy_teams[i])
+            worthy_teams.erase(worthy_teams.begin() + i);
+
+    print_worthy_teams(base, worthy_teams);
+}
+
 void find_teams_for_bonus(Data_Base &base)
 {
+    vector<Team *> worthy_teams = base.teams_for_bonus();
+    print_worthy_teams(base, worthy_teams);
 }
 
 void delete_working_hours(Data_Base &base, int employee_id, int day_num)
