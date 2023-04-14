@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iomanip>
+#include <set>
 
 using namespace std;
 
@@ -151,6 +152,14 @@ public:
         bonus_min_working_hours = stoi(team_info[3]);
         bonus_working_hours_max_variance = stof(team_info[4]);
     }
+    bool set_bonus(int bonus_percentage)
+    {
+        if (bonus_percentage > 100 || bonus_percentage < 0)
+            return false;
+
+        bonus = bonus_percentage;
+        return true;
+    }
 
     void fill_team_info_map(map<string, string> &team_report)
     {
@@ -176,6 +185,7 @@ private:
     vector<int> member_ids;
     int bonus_min_working_hours;
     float bonus_working_hours_max_variance;
+    int bonus;
 };
 
 class Employee
@@ -576,6 +586,22 @@ map<string, string> Data_Base::report_employee_salary(int id)
 }
 //**********************************************************************
 
+void update_team_bonus(Data_Base &base, int team_id, int bonus_percentage)
+{
+    Team *team = base.find_team_by_id(team_id);
+    if (team == NULL)
+    {
+        cout << "TEAM_NOT_FOUND" << endl;
+        return;
+    }
+    if (team->set_bonus(bonus_percentage))
+    {
+        cout << "OK" << endl;
+        return;
+    }
+    cout << "INVALID_ARGUMENTS" << endl;
+}
+
 void print_report_team_salary(Data_Base &base, int team_id)
 {
     vector<map<string, string>> team_reports = base.report_team_salary(team_id);
@@ -638,7 +664,7 @@ void print_report_salaries(Data_Base &base)
 
 void print_report_total_hours_per_day(Data_Base &base, int first_day, int last_day)
 {
-    if (first_day < 1 || last_day > 30)
+    if (first_day < 1 || last_day > DAYS_OF_MOUNTH || first_day > last_day)
     {
         cout << "INVALID_ARGUMENTS" << endl;
         return;
@@ -656,7 +682,7 @@ void show_salary_config(Data_Base &base, string level_name)
     map<string, int> report = base.report_salary_config(level_name);
     if (report["Error"])
     {
-        cout << "INVALID_LEVEL";
+        cout << "INVALID_LEVEL" << endl;
         return;
     }
     cout << "Base Salary: " << report["Base Salary"] << endl
@@ -747,22 +773,23 @@ void command_manager(Data_Base &base)
 }
 
 int team_total_working_hours(vector<Employee> team_members)
+{
+    int sum = 0;
+    for (auto team_member : team_members)
     {
-        int sum = 0;
-        for (auto team_member : team_members)
-        {
-            sum += team_member.calculate_total_hours();
-        }
-        return sum;
+        sum += team_member.calculate_total_hours();
     }
+    return sum;
+}
 
 int main(int argc, char *argv[])
 {
     string address = argv[1];
     Data_Base base;
     get_inputs_from_csv(base, address + '/');
-    print_report_team_salary(base , 1);
-    // print_report_total_hours_per_day(base , 1 , 30);
-    //  show_salary_config(base , "fsdfsdf");
+
+    // print_report_team_salary(base, 1);
+    // print_report_total_hours_per_day(base , 18 , 18);
+    // show_salary_config(base , "fsdfsdf");
     //  command_manager(base);
 }
