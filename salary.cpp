@@ -922,13 +922,14 @@ void print_report_team_salary(Data_Base &base, int team_id)
          << "Head Name: " + team_reports[0]["Head Name"] << endl
          << "Team Total Working Hours: " + team_reports[0]["Team Total Working Hours"] << endl
          << "Average Member Working Hour: " << fixed << setprecision(1) << stof(team_reports[0]["Average Member Working Hour"]) << endl
-         << "Bonus: " + team_reports[0]["Bonus"] << endl;
+         << "Bonus: " + team_reports[0]["Bonus"] << endl
+         << "---" << endl;
 
     for (int i = 1; i < team_reports.size(); i++)
     {
-        cout << "---" << endl;
         cout << "Member ID: " + team_reports[i]["Member ID"] << endl
              << "Total Earning: " + team_reports[i]["Total Earning"] << endl;
+        cout << "---" << endl;
     }
 }
 
@@ -957,16 +958,13 @@ void print_report_of_employee_salary(Data_Base &base, int id)
 void print_report_salaries(Data_Base &base)
 {
     vector<map<string, string>> all_reports = base.report_salaries();
-    int dashed_line = 1;
     for (auto report : all_reports)
     {
         cout << "ID: " << report["ID"] << endl
              << "Name: " << report["Name"] << endl
              << "Total Working Hours: " << report["Total Working Hours"] << endl
-             << "Total Earning: " << report["Total Earning"] << endl;
-        if (dashed_line < all_reports.size())
-            cout << "---" << endl;
-        dashed_line++;
+             << "Total Earning: " << report["Total Earning"] << endl
+             << "---" << endl;
     }
 }
 
@@ -1271,7 +1269,6 @@ public:
         while (set_input())
         {
             command_manager(base, command, value);
-            cout << "---" << endl;
             input_clear();
         }
     }
