@@ -222,7 +222,7 @@ public:
     }
 
     string get_level() { return level; }
-    int get_salary_per_extra_hour() { return salary_per_hour; }
+    int get_salary_per_extra_hour() { return salary_per_extra_hour; }
     int get_official_working_hours() { return official_working_hours; }
     int get_salary_per_hour() { return salary_per_hour; }
     int get_tax_percentage() { return tax_percentage; }
@@ -413,8 +413,9 @@ int Employee::calculate_salary()
     if (total_hour <= level->get_official_working_hours())
         return base_salary + (total_hour * level->get_salary_per_hour());
     int official_hours = level->get_official_working_hours();
+    int extra_hours = total_hour - official_hours;
     int basic_salary = official_hours * level->get_salary_per_hour();
-    int extra_salary = (total_hour - official_hours) * level->get_salary_per_extra_hour();
+    int extra_salary = extra_hours * level->get_salary_per_extra_hour();
     return (basic_salary + extra_salary + base_salary);
 }
 int Employee::calculate_bonus()
@@ -587,14 +588,14 @@ public:
         return output;
     }
 
-    int calculate_total_hours_working_of_members(Team &team) //--------------------
+    int calculate_total_hours_working_of_members(Team &team)
     {
         int total_team_hour = 0;
         vector<int> member_ids = team.get_member_ids();
         vector<Employee> employees = find_employees_by_id(member_ids);
         return (team_total_working_hours(employees));
     }
-    float calculate_variance_hours_working_of_members(Team &team) //-------------------
+    float calculate_variance_hours_working_of_members(Team &team)
     {
         vector<int> member_ids = team.get_member_ids();
         vector<Employee> employees = find_employees_by_id(member_ids);
@@ -921,14 +922,13 @@ void print_report_team_salary(Data_Base &base, int team_id)
          << "Head Name: " + team_reports[0]["Head Name"] << endl
          << "Team Total Working Hours: " + team_reports[0]["Team Total Working Hours"] << endl
          << "Average Member Working Hour: " << fixed << setprecision(1) << stof(team_reports[0]["Average Member Working Hour"]) << endl
-         << "Bonus: " + team_reports[0]["Bonus"] << endl
-         << "---" << endl;
+         << "Bonus: " + team_reports[0]["Bonus"] << endl;
 
     for (int i = 1; i < team_reports.size(); i++)
     {
+        cout << "---" << endl;
         cout << "Member ID: " + team_reports[i]["Member ID"] << endl
-             << "Total Earning: " + team_reports[i]["Total Earning"] << endl
-             << "---" << endl;
+             << "Total Earning: " + team_reports[i]["Total Earning"] << endl;
     }
 }
 
@@ -957,13 +957,16 @@ void print_report_of_employee_salary(Data_Base &base, int id)
 void print_report_salaries(Data_Base &base)
 {
     vector<map<string, string>> all_reports = base.report_salaries();
+    int dashed_line = 1;
     for (auto report : all_reports)
     {
         cout << "ID: " << report["ID"] << endl
              << "Name: " << report["Name"] << endl
              << "Total Working Hours: " << report["Total Working Hours"] << endl
              << "Total Earning: " << report["Total Earning"] << endl;
-        cout << "---" << endl;
+        if (dashed_line < all_reports.size())
+            cout << "---" << endl;
+        dashed_line++;
     }
 }
 
@@ -1013,8 +1016,8 @@ void print_report_total_hours_per_day(Data_Base &base, int first_day, int last_d
     map<int, int> schedule = base.report_total_hours_per_day(first_day, last_day);
     for (int day = first_day; day <= last_day; day++)
         cout << "Day #" + to_string(day) + ": " << schedule[day] << endl;
-    cout << "---" << endl;
 
+    cout << "---" << endl;
     cout << "Day(s) with Max Working Hours: ";
     print_max_elements_of_map(schedule);
     cout << "Day(s) with Min Working Hours: ";
