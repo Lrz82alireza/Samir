@@ -86,8 +86,8 @@ Team Total Working Hours: 428
 Average Member Working Hour: 214.0
 Bonus: 10
 ---
-Member ID: 3
-Total Earning: 60343
+Member ID: 1
+Total Earning: 23375
 ---
 Member ID: 3
 Total Earning: 60343
@@ -148,8 +148,8 @@ Team Total Working Hours: 458
 Average Member Working Hour: 229.0
 Bonus: 10
 ---
-Member ID: 3
-Total Earning: 60528
+Member ID: 1
+Total Earning: 24834
 ---
 Member ID: 3
 Total Earning: 60528
