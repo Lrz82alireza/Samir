@@ -11,18 +11,17 @@ Total Earning: 53761
 ID: 3
 Name: ParvinKarami
 Total Working Hours: 228
-Total Earning: 55107
+Total Earning: 54857
 ---
 ID: 4
 Name: MehranAmiri
 Total Working Hours: 226
-Total Earning: 46980
+Total Earning: 46749
 ---
 ID: 5
 Name: BehzadAbbasi
 Total Working Hours: 175
 Total Earning: 28080
----
 ---
 ID: 2
 Name: GolnazEmadi
@@ -35,7 +34,6 @@ Salary: 79060
 Bonus: 0
 Tax: 25299
 Total Earning: 53761
----
 ID: 1
 Head ID: 2
 Head Name: GolnazEmadi
@@ -47,21 +45,16 @@ Member ID: 2
 Total Earning: 53761
 ---
 Member ID: 4
-Total Earning: 46980
----
+Total Earning: 46749
 ---
 OK
----
 EMPLOYEE_NOT_FOUND
----
 Base Salary: 13000
 Salary Per Hour: 60
 Salary Per Extra Hour: 48
 Official Working Hours: 210
 Tax: 15%
----
 OK
----
 ID: 1
 Head ID: 2
 Head Name: GolnazEmadi
@@ -73,8 +66,7 @@ Member ID: 2
 Total Earning: 61825
 ---
 Member ID: 4
-Total Earning: 54027
----
+Total Earning: 53761
 ---
 ID: 5
 Name: BehzadAbbasi
@@ -87,7 +79,6 @@ Salary: 39000
 Bonus: 0
 Tax: 10920
 Total Earning: 28080
----
 ID: 2
 Head ID: 3
 Head Name: ParvinKarami
@@ -96,16 +87,13 @@ Average Member Working Hour: 214.0
 Bonus: 10
 ---
 Member ID: 3
-Total Earning: 60618
+Total Earning: 60343
 ---
 Member ID: 1
 Total Earning: 23375
 ---
----
 INVALID_LEVEL
----
 OK
----
 Day #8: 34
 Day #9: 31
 Day #10: 37
@@ -115,10 +103,7 @@ Day #13: 40
 ---
 Day(s) with Max Working Hours: 11 
 Day(s) with Min Working Hours: 12 
----
 OK
----
----
 ID: 1
 Name: AzadehZahedi
 Age: 28
@@ -130,9 +115,7 @@ Salary: 25540
 Bonus: 2554
 Tax: 4214
 Total Earning: 23880
----
 OK
----
 ID: 3
 Name: ParvinKarami
 Age: 45
@@ -140,13 +123,11 @@ Level: team_lead
 Team ID: 2
 Total Working Hours: 228
 Absent Days: 2
-Salary: 81040
-Bonus: 8104
-Tax: 28526
-Total Earning: 60618
----
+Salary: 80920
+Bonus: 8092
+Tax: 28484
+Total Earning: 60528
 INVALID_ARGUMENTS
----
 ID: 1
 Name: AzadehZahedi
 Age: 28
@@ -154,15 +135,12 @@ Level: junior
 Team ID: 2
 Total Working Hours: 220
 Absent Days: 5
-Salary: 26200
-Bonus: 2620
-Tax: 4323
-Total Earning: 24497
----
+Salary: 26080
+Bonus: 2608
+Tax: 4303
+Total Earning: 24385
 OK
----
 TEAM_NOT_FOUND
----
 ID: 2
 Head ID: 3
 Head Name: ParvinKarami
@@ -171,18 +149,16 @@ Average Member Working Hour: 229.0
 Bonus: 10
 ---
 Member ID: 3
-Total Earning: 60618
+Total Earning: 60528
 ---
 Member ID: 1
-Total Earning: 25058
----
+Total Earning: 24834
 ---
 OK
----
 ID: 1
 Name: AzadehZahedi
 Total Working Hours: 226
-Total Earning: 24834
+Total Earning: 24654
 ---
 ID: 2
 Name: GolnazEmadi
@@ -192,23 +168,20 @@ Total Earning: 61825
 ID: 3
 Name: ParvinKarami
 Total Working Hours: 228
-Total Earning: 60618
+Total Earning: 60528
 ---
 ID: 4
 Name: MehranAmiri
 Total Working Hours: 226
-Total Earning: 54027
+Total Earning: 53761
 ---
 ID: 5
 Name: BehzadAbbasi
 Total Working Hours: 175
 Total Earning: 28080
 ---
----
 INVALID_ARGUMENTS
----
 INVALID_INTERVAL
----
 ID: 4
 Name: MehranAmiri
 Age: 32
@@ -216,11 +189,10 @@ Level: expert
 Team ID: 1
 Total Working Hours: 226
 Absent Days: 0
-Salary: 62640
-Bonus: 9396
-Tax: 18009
-Total Earning: 54027
----
+Salary: 62332
+Bonus: 9350
+Tax: 17921
+Total Earning: 53761
 ID: 1
 Name: AzadehZahedi
 Age: 28
@@ -228,11 +200,10 @@ Level: junior
 Team ID: 2
 Total Working Hours: 226
 Absent Days: 5
-Salary: 26560
-Bonus: 2656
-Tax: 4382
-Total Earning: 24834
----
+Salary: 26368
+Bonus: 2637
+Tax: 4351
+Total Earning: 24654
 ID: 1
 Head ID: 2
 Head Name: GolnazEmadi
@@ -244,11 +215,9 @@ Member ID: 2
 Total Earning: 61825
 ---
 Member ID: 4
-Total Earning: 54027
----
+Total Earning: 53761
 ---
 OK
----
 ID: 3
 Name: ParvinKarami
 Age: 45
@@ -260,9 +229,7 @@ Salary: 79780
 Bonus: 7978
 Tax: 28083
 Total Earning: 59675
----
 OK
----
 ID: 5
 Name: BehzadAbbasi
 Age: 26
@@ -274,6 +241,4 @@ Salary: 39400
 Bonus: 0
 Tax: 11032
 Total Earning: 28368
----
 EMPLOYEE_NOT_FOUND
----
