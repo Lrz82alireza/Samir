@@ -38,7 +38,7 @@ ID: 1
 Head ID: 2
 Head Name: GolnazEmadi
 Team Total Working Hours: 443
-Average Member Working Hour: 221.5
+Average Member Working Hours: 221.5
 Bonus: 0
 ---
 Member ID: 2
@@ -59,7 +59,7 @@ ID: 1
 Head ID: 2
 Head Name: GolnazEmadi
 Team Total Working Hours: 443
-Average Member Working Hour: 221.5
+Average Member Working Hours: 221.5
 Bonus: 15
 ---
 Member ID: 2
@@ -83,7 +83,7 @@ ID: 2
 Head ID: 3
 Head Name: ParvinKarami
 Team Total Working Hours: 428
-Average Member Working Hour: 214.0
+Average Member Working Hours: 214.0
 Bonus: 10
 ---
 Member ID: 1
@@ -101,9 +101,10 @@ Day #11: 43
 Day #12: 21
 Day #13: 40
 ---
-Day(s) with Max Working Hours: 11 
-Day(s) with Min Working Hours: 12 
+Day(s) with Max Working Hours: 11
+Day(s) with Min Working Hours: 12
 OK
+INVALID_ARGUMENTS
 ID: 1
 Name: AzadehZahedi
 Age: 28
@@ -145,7 +146,7 @@ ID: 2
 Head ID: 3
 Head Name: ParvinKarami
 Team Total Working Hours: 458
-Average Member Working Hour: 229.0
+Average Member Working Hours: 229.0
 Bonus: 10
 ---
 Member ID: 1
@@ -208,7 +209,7 @@ ID: 1
 Head ID: 2
 Head Name: GolnazEmadi
 Team Total Working Hours: 443
-Average Member Working Hour: 221.5
+Average Member Working Hours: 221.5
 Bonus: 15
 ---
 Member ID: 2

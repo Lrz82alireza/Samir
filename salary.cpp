@@ -549,7 +549,7 @@ public:
         temp_map["Team Total Working Hours"] = to_string(team_total_working_hours(team_members));
 
         float avg_total_earning = (stof(temp_map["Team Total Working Hours"]) / team_members.size());
-        temp_map["Average Member Working Hour"] = to_string(avg_total_earning);
+        temp_map["Average Member Working Hours"] = to_string(avg_total_earning);
         team_reports.push_back(temp_map);
 
         for (auto team_member : team_members)
@@ -830,7 +830,7 @@ void delete_working_hours(Data_Base &base, int employee_id, int day_num)
         cout << "EMPLOYEE_NOT_FOUND" << endl;
         return;
     }
-    if (day_num > DAY_LENGTH || day_num < 0)
+    if (day_num > DAY_LENGTH || day_num <= 0)
     {
         cout << "INVALID_ARGUMENTS" << endl;
         return;
@@ -926,7 +926,7 @@ void print_report_team_salary(Data_Base &base, int team_id)
          << "Head ID: " + team_reports[0]["Head ID"] << endl
          << "Head Name: " + team_reports[0]["Head Name"] << endl
          << "Team Total Working Hours: " + team_reports[0]["Team Total Working Hours"] << endl
-         << "Average Member Working Hour: " << fixed << setprecision(1) << stof(team_reports[0]["Average Member Working Hour"]) << endl
+         << "Average Member Working Hours: " << fixed << setprecision(1) << stof(team_reports[0]["Average Member Working Hours"]) << endl
          << "Bonus: " + team_reports[0]["Bonus"] << endl
          << "---" << endl;
 
@@ -1000,7 +1000,7 @@ void print_max_elements_of_map(map<int, int> &mymap)
     int max_value = find_max_element_of_map(mymap);
     for (auto map : mymap)
         if (map.second == max_value)
-            cout << map.first << ' ';
+            cout << " " << map.first;
     cout << endl;
 }
 
@@ -1009,7 +1009,7 @@ void print_min_elements_of_map(map<int, int> &mymap)
     int min_value = find_min_element_of_map(mymap);
     for (auto map : mymap)
         if (map.second == min_value)
-            cout << map.first << ' ';
+            cout << " " << map.first;
     cout << endl;
 }
 
@@ -1025,9 +1025,9 @@ void print_report_total_hours_per_day(Data_Base &base, int first_day, int last_d
         cout << "Day #" + to_string(day) + ": " << schedule[day] << endl;
 
     cout << "---" << endl;
-    cout << "Day(s) with Max Working Hours: ";
+    cout << "Day(s) with Max Working Hours:";
     print_max_elements_of_map(schedule);
-    cout << "Day(s) with Min Working Hours: ";
+    cout << "Day(s) with Min Working Hours:";
     print_min_elements_of_map(schedule);
 }
 
