@@ -908,6 +908,27 @@ void update_team_bonus(Data_Base &base, int team_id, int bonus_percentage)
     cout << "INVALID_ARGUMENTS" << endl;
 }
 
+void order_by_id(vector<map<string, string>> team_reports, vector<map<string, string>> &result)
+{
+    if (team_reports.size() == 0)
+        return;
+
+    int i; 
+    map<string, string> best = team_reports[0];
+    for (i = 0; i < team_reports.size(); i++)
+    {
+        if(stoi(best["Member ID"]) < stoi(team_reports[i]["Member ID"]))
+        {
+            best = team_reports[i];
+            break;
+        }
+    }
+    result.push_back(best);
+    team_reports.erase(team_reports.begin() + i);
+
+    order_by_id(team_reports, result);
+}
+
 void print_report_team_salary(Data_Base &base, int team_id)
 {
     vector<map<string, string>> team_reports = base.report_team_salary(team_id);
@@ -925,10 +946,15 @@ void print_report_team_salary(Data_Base &base, int team_id)
          << "Bonus: " + team_reports[0]["Bonus"] << endl
          << "---" << endl;
 
-    for (int i = 1; i < team_reports.size(); i++)
+    team_reports.erase(team_reports.begin());
+
+    vector<map<string, string>> sorted_team_reports;
+    order_by_id(team_reports, sorted_team_reports);
+
+    for (int i = sorted_team_reports.size() - 1; i >= 0; i--)
     {
-        cout << "Member ID: " + team_reports[i]["Member ID"] << endl
-             << "Total Earning: " + team_reports[i]["Total Earning"] << endl;
+        cout << "Member ID: " + sorted_team_reports[i]["Member ID"] << endl
+             << "Total Earning: " + sorted_team_reports[i]["Total Earning"] << endl;
         cout << "---" << endl;
     }
 }
